@@ -4,6 +4,10 @@
 #Sequencing reads were split by each library, with details of library identifier described below
 
 ####################Extracting library identifiers from bam files#############################
+
+#############Load modules################
+module load samtools/1.8
+
 #############Change file path################
 PATH="/projects/dumont-lab/uma/Sangerbams/"
 #############################################
