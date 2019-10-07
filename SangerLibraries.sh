@@ -1,7 +1,7 @@
 #####################################1) Sanger Mouse Genomes Project#########################################
 #Sanger Mouse Genomes Project inbred mouse strains were sequenced in multiple libraries. 
 #Each library is from the same biological sample. 
-#Sequencing reads were split by eachh library, with details of library identifier described below
+#Sequencing reads were split by each library, with details of library identifier described below
 
 ####################Extracting library identifiers from bam files#############################
 #############Change file path################
