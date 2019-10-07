@@ -6,7 +6,7 @@ module load samtools/1.8
 
 #############Change file path################
 PATHINPUT="/projects/dumont-lab/uma/Sangerbams/"
-PATHOUTPUT="/projects/dumont-lab/uma/k31/fastq/"
+PATHOUTPUT="/projects/dumont-lab/uma/fastq/"
 #############################################
 
 #129P2/OlaHsd
