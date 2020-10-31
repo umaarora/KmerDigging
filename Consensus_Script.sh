@@ -1,5 +1,3 @@
-cat> $1.consensus.R << EOF
-
 #!/bin/Rscript
 
 ################################################
@@ -199,5 +197,3 @@ df <- k31minor_r
 #write out table  
   setwd('/projects/dumont-lab/uma/k31/consensus_separated')
   write.table(probscoremajsat_r,file = "$1.consensus.major.reverse.txt", sep = '\t', quote = FALSE, row.names = FALSE)
-
-EOF  
