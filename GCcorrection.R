@@ -1,4 +1,6 @@
+#!/urs/bin/env Rscript
 
+####Change all directories and file names accordingly####
 setwd('~/Box Sync/Dumont_Lab/k-merDigging/centromere_kmers/copynumber/data/')
 all <- read.table(file = 'final.set1.merge.h0.k15andk31.minorandmajor.txt', header = TRUE)
 
