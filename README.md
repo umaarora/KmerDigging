@@ -20,14 +20,22 @@ kmer_composition.py: Python script to read in a fastq file and output a k-mer ta
 
 k31txt.to.fastq.py: Convert k-mer table into fastq format for mapping to centromere consensus
 
-centromere_kmers.sh: Map k-mers to centromere consensus (at the top of the script is the centromere consensus fa file)
+centromere_kmers.sh: Use bwa to map k-mers to centromere consensus (at the top of the script is the centromere consensus fa file). Produces output mapped k-mer sam file.
 
-process_mapped_sam: process mapped k-mer sam file to make a dataframe
+process_mapped_sam.sh: process mapped k-mer sam file to make a dataframe
 
-GC_calculation: calculate GC% of each k-mer in the table
+GC_calculation.R: calculate GC% of each k-mer in the table
 
 GCcontent.py: Subsets k-mers for those that occur only once in the reference genome and calculates their GC%
 
 GCLoess.R: Loess regression on subsetted k-mers that only occur once in the genome. Loess regression based on GC content.
 
-GCcorrection: Correct each sample's raw k-mer counts by GC Loess regression predicted count 
+GCcorrection.R: Correct each sample's raw k-mer counts by GC Loess regression predicted count 
+
+Consensus_script.R: Calculate nucleotide frequency at each positionon minor and major consensus sequences using k-mer frequency and it's mapping position. 
+
+CentromereMapping.sh: Maps sequencing readss to centromere consensus sequence
+
+CentromereMapped_LocationSplit.py: Split mapped reads by location on consensus sequence they map to, and output a csv file compiling reads that map to each position on consensus sequence
+
+
