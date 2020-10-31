@@ -1,3 +1,4 @@
+#!/urs/bin/env Rscript
 
 ####################################
 #####Load required libraries########
