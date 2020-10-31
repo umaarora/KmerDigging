@@ -1,3 +1,5 @@
+#!/urs/bin/env Rscript
+
 #Calculate GC content for k31mers
 
 path = "/projects/dumont-lab/uma/kmerplots"                                       
