@@ -1,3 +1,4 @@
+#!/urs/bin/env Rscript
 
 #R script to process mapped sam files
 
