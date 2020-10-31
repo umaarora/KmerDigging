@@ -9,7 +9,7 @@ module load samtools/1.8
 
 ##########################################
 #The following code is to convert bam to fastq for wild mouse genomes project samples
-#Genomes sequenced by the Wild Mouse Genomes Project represent individual wild caught mice 
+#Each genome sequenced by the Wild Mouse Genomes Project represent one individual wild caught mouse
 
 #############Change file path################
 PATHOUTPUT="/projects/dumont-lab/uma/fastq/"
