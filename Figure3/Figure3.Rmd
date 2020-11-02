@@ -1,0 +1,86 @@
+---
+title: "FISH_quantification"
+author: "Uma Arora"
+date: "12/17/2019"
+output: html_document
+---
+
+#This R markdown contains code used to analyze FISH fluorescent intensity quantification data
+Raw data was collected from ImageJ and processed using this R script
+
+Load required libraries
+```{r setup, include=FALSE}
+library('stringr')
+library('ggplot2')
+```
+
+```{r}
+
+df <- read.table(file = 'Centromere_FISH_quant.txt')
+levels(df$STRAIN) <- c("CAST/EiJ","LEWES/EiJ","PWK/PhJ","WSB/EiJ")
+df$STRAIN = factor(df$STRAIN, levels(df$STRAIN)[c(1,4,2,3)])
+df <- na.omit(df)
+minor <- df[df$SATELLITE == 'MINOR',]
+major <- df[df$SATELLITE == 'MAJOR',]
+```
+
+
+
+Minor satellite plot
+```{r}
+
+svg(filename = 'FISH_minor.svg', 
+    width = 6, 
+    height = 6)
+
+ggplot(minor, aes(x= STRAIN, y= MEAN)) + 
+  geom_violin() +
+  geom_jitter(shape=16, position=position_jitter(0.2), alpha = 0.2) +
+  theme_bw() + 
+  theme_light() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size=15),
+        axis.title = element_text(size=20),
+        axis.text.y = element_text(size=15),
+        plot.title =element_text(size=20,face="bold") ) +
+  ylab("Minor satellite fluorescent intensity") 
+
+dev.off()
+```
+
+Major satellite plot
+```{r}
+svg(filename = 'FISH_major.svg', 
+    width = 6, 
+    height = 6)
+
+ggplot(major, aes(x= STRAIN, y= MEAN)) + 
+  geom_violin() +
+  geom_jitter(shape=16, position=position_jitter(0.2), alpha = 0.2) +
+  theme_bw() + 
+  theme_light() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size=15),
+        axis.title = element_text(size=20),
+        axis.text.y = element_text(size=15),
+        plot.title =element_text(size=20,face="bold") ) +
+  ylab("Major satellite fluorescent intensity") 
+
+dev.off()
+
+```
+
+Statistical tests: Minor satellite
+```{r}
+kruskalANOVA <- kruskal.test(MEAN ~ STRAIN, data = minor)
+summary(kruskalANOVA)
+TukeyHSD(kruskalANOVA)
+
+```
+
+Sttistical test: Major satellite
+```{r}
+anovamajor <- aov(MEAN ~ STRAIN, data = major)
+summary(anovamajor)
+TukeyHSD(anovamajor)
+
+```
+
