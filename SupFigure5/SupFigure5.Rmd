@@ -1,0 +1,47 @@
+---
+title: "K15_boxplot"
+author: "Uma Arora"
+date: "9/1/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+setwd('~/Desktop/Dumont_Lab/k-merDigging/centromere_kmers/copynumber/k15_GCcorrection/data')
+corrected <- read.table(file = 'k15.correctedcount.txt')
+corrected <- corrected[corrected$LIBRARY != 'P2 NO PCR', ]
+corrected <- corrected[corrected$LIBRARY != 'SLX500HC', ]
+corrected <- corrected[corrected$LIBRARY != 'NO PCR', ]
+correctedCON <- corrected[corrected$CON.SCR == 'CONSENSUS',]
+correctedCONMusmusculus <- correctedCON[correctedCON$TAXONOMY == 'Mus musculus',]
+correctedCONMusmusculus$STRAIN = factor(correctedCONMusmusculus$STRAIN, levels(correctedCONMusmusculus$STRAIN)[c(26,10,3,8,6,1,12,4,25,2,5,9,11,14,16,17,18,19,20,21,22,23,15,24,7,13)])
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+
+ggplot(correctedCONMusmusculus, aes(x=STRAIN, y=CORRECTEDCOUNT, fill = SAT)) + 
+  geom_boxplot() +
+  facet_grid(cols = vars(correctedCONMusmusculus$POPULATION), scales = "free_x")+
+  theme_bw() + 
+  theme_light() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, size=15),axis.title = element_text(size=20),axis.text.y = element_text(size=15),plot.title =element_text(size=20,face="bold") ) +
+  xlab("Mus musculus Inbred Strains") +
+  ylab("Log10(GC corrected 15-mer Frequency)") +
+  labs(fill="Major/Minor") 
+
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
