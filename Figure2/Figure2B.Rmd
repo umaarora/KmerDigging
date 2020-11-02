@@ -1,0 +1,141 @@
+---
+title: "KmerFrequencyBoxplot"
+author: "Uma Arora"
+date: "3/18/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(ggplot2)
+
+```
+
+
+```{r pressure, echo=FALSE}
+setwd('/Users/arorau/Desktop/Dumont_Lab/k-merDigging/centromere_kmers/copynumber/k31_GCcorrection/data/')
+k31 <- read.table(file = 'final.set1.k31.correctedcount.txt', header = TRUE)
+#remove no PCR libraries
+k31 <- k31[k31$LIBRARY != 'P2 NO PCR', ]
+k31 <- k31[k31$LIBRARY != 'SLX500HC', ]
+k31 <- k31[k31$LIBRARY != 'NO PCR', ]
+k31Musmusculus <- k31[k31$TAXONOMY == 'Mus musculus',]
+k31Musmusculusconsensus <- k31Musmusculus[k31Musmusculus$CON.SCR == 'CONSENSUS',]
+k31MusmusculusconsensusMINOR <- k31Musmusculusconsensus[k31Musmusculusconsensus$SAT=='MINOR',]
+k31MusmusculusconsensusMAJOR <- k31Musmusculusconsensus[k31Musmusculusconsensus$SAT=='MAJOR',]
+
+#Reorder strains
+k31Musmusculusconsensus$STRAIN = factor(k31Musmusculusconsensus$STRAIN,levels(k31Musmusculusconsensus$STRAIN)[c(26,10,3,8,6,1,12,4,25,2,5,9,11,14,16,17,18,19,20,21,22,23,15,24)])
+
+svg(filename = 'GCcorr_Mmusculus_InbredandWild_Con_minorandmajor_k31.svg', 
+    width = 16, 
+    height = 9)
+
+
+ggplot(k31Musmusculusconsensus, aes(x = STRAIN, y= CORRECTEDCOUNT, fill = SAT)) + 
+  geom_boxplot() +
+  facet_grid(cols = vars(k31Musmusculusconsensus$POPULATION), scales = "free_x")+
+  theme_bw() + 
+  theme_light() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, size=15),
+        axis.title = element_text(size=20),
+        axis.text.y = element_text(size=15),
+        plot.title = element_text(size=20,face="bold") ) +
+  xlab("Mus musculus Inbred Strains") +
+  ylab("Log10(GC-corrected k-mer frequency)") +
+  labs(fill="Major/Minor") 
+
+dev.off()
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+Is the data normally distributed?
+Density plot
+Minor satellite
+```{r}
+plot(density(k31MusmusculusconsensusMINOR$CORRECTEDCOUNT),
+     main = "Density plot of GC-corrected minor satellite 31-mer frequency")
+
+```
+Density plot
+Major satellite
+```{r}
+plot(density(k31MusmusculusconsensusMAJOR$CORRECTEDCOUNT),
+     main = "Density plot of GC-corrected minor satellite 31-mer frequency")
+```
+
+
+
+Q-Q plot
+
+```{r}
+qqnorm(k31MusmusculusconsensusMINOR$CORRECTEDCOUNT)
+qqline(k31MusmusculusconsensusMINOR$CORRECTEDCOUNT, col = 2)
+```
+
+```{r}
+qqnorm(k31MusmusculusconsensusMAJOR$CORRECTEDCOUNT)
+qqline(k31MusmusculusconsensusMAJOR$CORRECTEDCOUNT, col = 2)
+```
+
+
+Statistical tests
+Calculating within strain variance and between strain variance with the Kruskal Wallis test
+calculate differences for major and minor satellite separately
+
+
+
+
+Calculate strain differences using an ANOVA
+MINOR
+```{r}
+k31MusmusculusconsensusMINOR_AOV <- aov(CORRECTEDCOUNT ~ STRAIN, data = k31MusmusculusconsensusMINOR)
+summary(k31MusmusculusconsensusMINOR_AOV)
+tuk_k31MusmusculusconsensusMINOR_AOV <- TukeyHSD(k31MusmusculusconsensusMINOR_AOV)
+tuk_k31MusmusculusconsensusMINOR_AOV
+```
+
+MAJOR
+```{r}
+k31MusmusculusconsensusMAJOR_AOV <- aov(CORRECTEDCOUNT ~ STRAIN, data = k31MusmusculusconsensusMAJOR)
+summary(k31MusmusculusconsensusMAJOR_AOV)
+tuk_k31MusmusculusconsensusMAJOR_AOV <- TukeyHSD(k31MusmusculusconsensusMAJOR_AOV)
+tuk_k31MusmusculusconsensusMAJOR_AOV
+```
+
+Inbred strain differences
+
+Calculate strain differences using an ANOVA
+MINOR
+```{r}
+k31MusmusculusconsensusMINORinbred <- k31MusmusculusconsensusMINOR[k31MusmusculusconsensusMINOR$POPULATION == "Inbred",]
+
+k31MusmusculusconsensusMINORinbred_AOV <- aov(CORRECTEDCOUNT ~ STRAIN, data = k31MusmusculusconsensusMINORinbred)
+summary(k31MusmusculusconsensusMINORinbred_AOV)
+tuk_k31MusmusculusconsensusMINORinbred_AOV <- TukeyHSD(k31MusmusculusconsensusMINORinbred_AOV)
+tuk_k31MusmusculusconsensusMINORinbred_AOV
+```
+
+MAJOR
+```{r}
+k31MusmusculusconsensusMAJORinbred <- k31MusmusculusconsensusMAJOR[k31MusmusculusconsensusMAJOR$POPULATION == "Inbred",]
+
+k31MusmusculusconsensusMAJORinbred_AOV <- aov(CORRECTEDCOUNT ~ STRAIN, data = k31MusmusculusconsensusMAJORinbred)
+summary(k31MusmusculusconsensusMAJORinbred_AOV)
+tuk_k31MusmusculusconsensusMAJORinbred_AOV <- TukeyHSD(k31MusmusculusconsensusMAJORinbred_AOV)
+tuk_k31MusmusculusconsensusMAJORinbred_AOV
+```
+
+t-test btw inbred strains and wild mice 
+k31Musmusculusconsensus
+```{r}
+
+k31Musmusculusconsensus_inbredwildAOV <- aov(CORRECTEDCOUNT ~ POPULATION, data = k31Musmusculusconsensus)
+summary(k31Musmusculusconsensus_inbredwildAOV)
+
+
+t.test(k31Musmusculusconsensus$CORRECTEDCOUNT~k31Musmusculusconsensus$POPULATION)
+
+```
+
+
