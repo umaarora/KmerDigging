@@ -1,0 +1,130 @@
+---
+title: "31mer and mapping correlation"
+author: "Uma Arora"
+date: "8/31/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(ggplot2)
+library(dplyr)
+library(ggrepel)
+library(ggpmisc)
+
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+setwd("~/Desktop/Dumont_Lab/k-merDigging/manuscript/Supplementary/SupFigure2")
+k31 <- read.table(file = 'final.set1.k31.correctedcount.txt', header = TRUE)
+#Remove NOPCR libraries
+k31 <- k31[k31$LIBRARY != 'P2 NO PCR', ]
+k31 <- k31[k31$LIBRARY != 'SLX500HC', ]
+k31 <- k31[k31$LIBRARY != 'NO PCR', ]
+
+readmap <- read.csv(file = 'Pi_Estimation_metadata.csv')
+k31 <- k31[k31$TAXONOMY == "Mus musculus",]
+
+
+minorcopy <- k31[k31$SAT == 'MINOR',]
+minorcopy %>% 
+  group_by(STRAIN) %>% 
+  summarise(median=median(CORRECTEDCOUNT)) -> minorcopy
+
+
+majorcopy <- k31[k31$SAT == 'MAJOR',]
+majorcopy %>% 
+  group_by(STRAIN) %>% 
+  summarise(median=median(CORRECTEDCOUNT)) -> majorcopy
+
+colnames(minorcopy) <- c("Strain","Minork31median")
+
+colnames(majorcopy) <- c("Strain","Majork31median")
+
+merge <- merge(minorcopy,majorcopy,by = "Strain")
+
+merge <- merge(merge,readmap,by = "Strain")
+
+merge <- merge[,-c(4,5)]
+
+merge$SUBSPECIES <- "Domesticus"
+merge[5,6] <- "Castaneus"
+merge[11,6] <- "Castaneus"
+merge[10,6] <- "Musculus"
+merge[15:17,6] <- "Musculus"
+
+merge$GROUP <- "Inbred"
+merge[11:17,7] <- "Wild"
+
+my.formula <- y ~ x
+
+```
+
+```{r}
+lm_minor <- lm(merge$MinorMapped~merge$Minork31median)
+summary(lm_minor)
+
+
+```
+
+```{r}
+lm_major <- lm(merge$MajorMapped~merge$Majork31median)
+summary(lm_major)
+
+```
+
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+svg(filename = 'GCcorrk31_mapped_minor_corr.svg', 
+    width = 7, 
+    height = 5)
+
+fit <- lm(merge$MinorMapped~merge$Minork31median)
+
+ggplot(merge, aes(x=Minork31median, y = MinorMapped, color = SUBSPECIES, shape = GROUP)) + 
+  geom_point(size=2) +
+  geom_smooth(method=lm, se = FALSE, color = "black") +
+  scale_color_manual(values = c("forestgreen","plum","red"))+
+  #stat_poly_eq(formula = my.formula, 
+  #              aes(label = paste(..eq.label.., ..rr.label.., sep = "~~~")), 
+  #              parse = TRUE) +
+  #labs(title = paste(" P =",signif(summary(fit)$coef[2,4], 5))) +
+  geom_text_repel(aes(Minork31median, MinorMapped, label= Strain)) +
+  xlab("Median Log10(GC-corrected 31-mer frequency)") +
+  ylab("% reads mapped to consensus minor satellite")
+
+dev.off()
+
+```
+
+```{r pressure, echo=FALSE}
+svg(filename = 'GCcorrk31_mapped_major_corr.svg', 
+    width = 5, 
+    height = 5)
+
+fit <- lm(merge$MajorMapped ~merge$Majork31median)
+
+ggplot(merge, aes(x=Majork31median, y = MajorMapped, color = SUBSPECIES)) + 
+  geom_point(size=2) +
+  geom_smooth(method=lm, se = FALSE, color = "black") +
+  scale_color_manual(values = c("forestgreen","plum","red"))+
+  #stat_poly_eq(formula = my.formula, 
+  #              aes(label = paste(..eq.label.., ..rr.label.., sep = "~~~")), 
+  #              parse = TRUE) +
+  #labs(title = paste(" P =",signif(summary(fit)$coef[2,4], 5))) +
+  theme(legend.position = "none") +
+  geom_text_repel(aes(Majork31median, MajorMapped, label= Strain)) +
+  xlab("Median Log10(GC-corrected 31-mer frequency)") +
+  ylab("% reads mapped to consensus major satellite")
+
+dev.off()
+```
