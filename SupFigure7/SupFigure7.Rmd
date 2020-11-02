@@ -1,0 +1,115 @@
+---
+title: "SupFigure4"
+author: "Uma Arora"
+date: "3/23/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+setwd("/Users/arorau/Box Sync/Dumont_Lab/k-merDigging/manuscript/Figures/Figure8")
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+Linear Model
+```{r}
+  
+major <- read.table(file = "retic_micronucl_M12_GCcorr_major.txt")
+
+  
+my.formula <- y ~ x
+
+svg(filename = "retic_micronucl_M12_k31_major_median.svg", width = 6, height = 3)
+  
+ggplot(major, aes(x = median.x, y = median.y)) + 
+       geom_smooth(method = "lm")  + 
+    stat_poly_eq(formula = my.formula, 
+                aes(label = paste(..eq.label.., ..rr.label.., sep = "~~~")), 
+                parse = TRUE) +
+    geom_text(aes(label=merge1$STRAIN))+
+       geom_point() +
+    ggtitle("Correlation of major satellite 31-mer frequency and phenotype") +
+xlab("GC content normalized major satellite k-mer frequency") +
+ylab(f)
+
+dev.off()
+  
+
+```
+
+P-value of linear model 
+```{r}
+model <- lm(formula = median.y ~ median.x, data = merge1)
+summary(model)
+```
+
+
+```{r}
+minor <- read.table(file = "retic_micronucl_M12_GCcorr_minor.txt")
+
+my.formula <- y ~ x
+
+  
+svg(filename = "retic_micronucl_M12_k31_minor_median.svg", width = 6, height = 3)
+  
+ggplot(merge2, aes(x = median.x, y = median.y)) + 
+       geom_smooth(method = "lm")  + 
+    stat_poly_eq(formula = my.formula, 
+                aes(label = paste(..eq.label.., ..rr.label.., sep = "~~~")), 
+                parse = TRUE) +
+    geom_text(aes(label=merge2$STRAIN))+
+       geom_point() +
+    xlim(0,110000)+
+    ggtitle("Correlation of minor satellite 31-mer frequency and phenotype") +
+  xlab("GC content normalized major satellite k-mer frequency") +
+  ylab(f)
+
+dev.off()
+  
+  
+
+```
+Linear model minor
+```{r}
+model <- lm(formula = median.y ~ median.x, data = merge2)
+summary(model)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+
+svg(filename = "retic_micronucl_M12_Spearman_k31_major_median.svg", width = 6, height = 3)
+
+ggscatter(major, x = "mean.x", y = "mean.y", 
+          add = "reg.line", conf.int = TRUE, 
+          cor.coef = TRUE, cor.method = "spearman",
+          xlab = "GC corr major sat k31 frequency", ylab = f)
+
+dev.off()
+  
+```
+
+
+```{r}
+
+svg(filename = "retic_micronucl_M12_Spearman_k31_minor_median.svg", width = 6, height = 3)
+
+
+  ggscatter(minor, x = "mean.x", y = "mean.y", 
+          add = "reg.line", conf.int = TRUE, 
+          cor.coef = TRUE, cor.method = "spearman",
+          xlim = c(0,110000),
+          xlab = "GC corr minor sat k31 frequency", ylab = f)
+  
+  
+dev.off()
+```
+
+
