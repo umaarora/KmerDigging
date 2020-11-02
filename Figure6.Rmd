@@ -1,0 +1,310 @@
+---
+title: "Figure6"
+author: "Uma Arora"
+date: "11/2/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(ape)
+library(pheatmap)
+library(RColorBrewer)
+```
+
+
+Phylogenetic tree
+```{r}
+setwd("/Users/arorau/Desktop/Dumont_Lab/k-merDigging/manuscript/Figures/Figure6")
+
+#import the tree and root to spret/eij
+tree = read.tree(file = "RAxML_bestTree.mgp.v5.merged.snps_all.dbSNP142.PASS.13strains.filtered.recode.phylip.boostrap.nwk")
+tree$tip.label
+tree = root(tree, outgroup="SPRET_EiJ")
+plot.phylo(tree, type = "phylogram", cex = 0.4)
+
+#remove inbred strains without data
+tree = drop.tip(tree, tip = c("129S5SvEvB","ZALENDE_EiJ"))
+plot.phylo(tree, type = "phylogram", cex = 0.4)
+
+tree$tip.label <- c("MOLF_EiJ","SPRET_EiJ","FVB_NJ","129S1_SvImJ","C57BL_6NJ","DBA_2J","C3H_HeJ","A_J","LEWES_EiJ","WSB_EiJ","CAST_EiJ","PWK_PhJ")
+
+```
+
+
+31-mer median frequency as trait
+```{r}
+phenos = matrix(data = NA, nrow = length(tree$tip.label), ncol = 4, dimnames = list(c(tree$tip.label), c("minor_median", "major_median", "minor_mean", "major_mean")))
+data = read.table (file = "GCcorr_k31_summary_centromerekmers.txt", header = T)
+
+for (s in 1:length(rownames(phenos))) {
+  strain = rownames(phenos)[s]
+  strain_name_dash = sub("_", "/", strain)
+  print(strain_name_dash)
+  
+  counts = subset(data, data$STRAIN==strain_name_dash)
+  major = subset(counts, counts$SAT=="MAJOR")
+  minor = subset(counts, counts$SAT=="MINOR")
+  phenos[strain,1] = minor$median
+  phenos[strain,2] = major$median
+  phenos[strain,3] = minor$mean
+  phenos[strain,4] = major$mean
+}
+
+##make heatmap
+#pheatmap(phenos[,1:2])
+
+#eyeball whether phenotypes are normalish
+par(mfrow = c(2,2))
+hist(phenos[,"minor_median"], breaks = seq(2,6,0.5))
+hist(phenos[,"major_median"], breaks = seq(2,6,0.5))
+hist(phenos[,"minor_mean"], breaks = seq(2,6,0.5))
+hist(phenos[,"major_mean"], breaks = seq(2,6,0.5))
+
+##Heatmap
+#median
+pheatmap(phenos[,1:2], color = brewer.pal(n=7, name = "RdYlBu"))
+
+```
+
+Change eps bte 1e-4, 1e-6, and 1e-8 when running
+```{r}
+#compute the expected variance-covariance matrix for quantitative trait under a Brownian motion model of evolution
+vcv = vcv(phy = tree, model="Brownian", corr = FALSE)
+
+#estimate the phylogenetic heritability using Lynch's method
+#out = compar.lynch(x = phenos, G = vcv, eps = 1e-4)
+#out = compar.lynch(x = phenos, G = vcv, eps = 1e-6)
+out = compar.lynch(x = phenos, G = vcv, eps = 1e-8)
+
+#compute observed phylogenetic heritabilities
+minor_median_h2p = out$vara[1,1]/(out$vara[1,1]+out$vare[1,1])  
+
+#eps 1e-4
+#0.50899
+#0.51451
+#0.26069
+#eps 1e-6
+#0.518491
+#0.614078
+#0.25191
+#0.25365
+#eps 1e-8
+#0.255429
+
+
+major_median_h2p = out$vara[2,2]/(out$vara[2,2]+out$vare[2,2])  
+
+#eps 1e-4
+#0.99632
+#0.99634
+#0.9720
+#eps 1e-6
+#0.99615
+#0.99527
+#0.97326
+#0.97337
+#eps 1e-8
+#0.97484
+
+
+#determine whether any phylogenetic heritability estimates are significant
+nReps = 1000
+
+###eps 1e-4
+compute_permutation_p_value <- function(kmers, vcv, obs_h2p) {
+  sim_h2p = numeric(nReps)
+  for (i in 1:nReps) {
+    #randomly permute k-mer values across the strains to destroy and relationship between they phylogeny and the k-mer count
+    shuffled.kmers = sample(x = kmers, size = length(kmers), replace = F)
+    names(shuffled.kmers) <- names(kmers)
+    sim.out = compar.lynch(x = shuffled.kmers, G = vcv, eps = 1e-4)
+    sim_h2p[i] = sim.out$vara[1,1]/(sim.out$vara[1,1]+sim.out$vare[1,1])
+  }
+  P = (length(which(sim_h2p > obs_h2p))+1)/(nReps+1)
+  return(P)
+}
+
+###eps 1e-6
+#compute_permutation_p_value <- function(kmers, vcv, obs_h2p) {
+  sim_h2p = numeric(nReps)
+  for (i in 1:nReps) {
+    #randomly permute k-mer values across the strains to destroy and relationship between they phylogeny and the k-mer count
+    shuffled.kmers = sample(x = kmers, size = length(kmers), replace = F)
+    names(shuffled.kmers) <- names(kmers)
+    sim.out = compar.lynch(x = shuffled.kmers, G = vcv, eps = 1e-6)
+    sim_h2p[i] = sim.out$vara[1,1]/(sim.out$vara[1,1]+sim.out$vare[1,1])
+  }
+  P = (length(which(sim_h2p > obs_h2p))+1)/(nReps+1)
+  return(P)
+}
+
+###eps 1e-8
+#compute_permutation_p_value <- function(kmers, vcv, obs_h2p) {
+  sim_h2p = numeric(nReps)
+  for (i in 1:nReps) {
+    #randomly permute k-mer values across the strains to destroy and relationship between they phylogeny and the k-mer count
+    shuffled.kmers = sample(x = kmers, size = length(kmers), replace = F)
+    names(shuffled.kmers) <- names(kmers)
+    sim.out = compar.lynch(x = shuffled.kmers, G = vcv, eps = 1e-8)
+    sim_h2p[i] = sim.out$vara[1,1]/(sim.out$vara[1,1]+sim.out$vare[1,1])
+  }
+  P = (length(which(sim_h2p > obs_h2p))+1)/(nReps+1)
+  return(P)
+}
+
+#compute p-val for minor median k-mer counts via permutation
+p_minor_median = compute_permutation_p_value(kmers = phenos[,"minor_median"], vcv = vcv, obs_h2p = minor_median_h2p)
+
+#eps 1e-4
+#0.14285
+#eps 1e-6
+#0.115884
+#eps 1e-8
+#0.111888
+
+#compute p-val for major median k-mer counts via permutation
+p_major_median = compute_permutation_p_value(kmers = phenos[,"major_median"], vcv = vcv, obs_h2p = major_median_h2p)
+
+#eps 1e-4
+#0.173826
+#eps 1e-6
+#0.187
+#eps 1e-8
+#0.208791
+
+
+```
+
+
+
+Pi mean value as trait
+```{r cars}
+data = read.csv(file = "Pi_Estimation_metadata.csv", header = T)
+colnames(data) <- c("STRAIN","MINOR","MAJOR","PERCENT MAPPED MAJOR","PERCENT MAPPED MINOR")
+
+for (s in 1:length(rownames(phenos))) {
+  strain = rownames(phenos)[s]
+  strain_name_dash = sub("_", "/", strain)
+  print(strain_name_dash)
+  
+  counts = subset(data, data$STRAIN==strain_name_dash)
+  major = subset(counts, counts$SAT=="MAJOR")
+  minor = subset(counts, counts$SAT=="MINOR")
+  phenos[strain,1] = counts$MINOR
+  phenos[strain,2] = counts$MAJOR
+}
+
+
+#eyeball whether phenotypes are normalish
+par(mfrow = c(2,1))
+hist(phenos[,"minor_mean"], breaks = seq(10,40,1))
+hist(phenos[,"major_mean"], breaks = seq(15,40,1))
+
+##Heatmap
+pheatmap(phenos, color = brewer.pal(n=7,name = "Greens"))
+
+```
+
+Change eps bte 1e-4, 1e-6, and 1e-8 when running
+```{r cars}
+#compute the expected variance-covariance matrix for quantitative trait under a Brownian motion model of evolution
+vcv = vcv(phy = tree, model="Brownian", corr = FALSE)
+
+#estimate the phylogenetic heritability using Lynch's method
+#out = compar.lynch(x = phenos, G = vcv, eps = 1e-4)
+#out = compar.lynch(x = phenos, G = vcv, eps = 1e-6)
+out = compar.lynch(x = phenos, G = vcv, eps = 1e-8)
+
+#out = compar.lynch(x = phenos, G = vcv, eps = 1e-4)
+#compute observed phylogenetic heritabilities
+minor_mean_h2p = out$vara[1,1]/(out$vara[1,1]+out$vare[1,1]) 
+
+#eps 1e-4
+#0.4238
+#eps 1e-6
+#0.29101
+#eps 1e-8
+#0.28606
+#0.28231
+#0.281866
+
+major_mean_h2p = out$vara[2,2]/(out$vara[2,2]+out$vare[2,2])  #0.7796015
+
+#eps 1e-4
+#0.999056
+#eps 1e-6
+#0.99978
+#eps 1e-8
+#0.99980
+#0.99981
+#0.99981
+
+#determine whether any phylogenetic heritability estimates are significant
+nReps = 1000
+
+#eps 1e-4
+compute_permutation_p_value <- function(kmers, vcv, obs_h2p) {
+  sim_h2p = numeric(nReps)
+  for (i in 1:nReps) {
+    #randomly permute k-mer values across the strains to destroy and relationship between they phylogeny and the k-mer count
+    shuffled.kmers = sample(x = kmers, size = length(kmers), replace = F)
+    names(shuffled.kmers) <- names(kmers)
+    sim.out = compar.lynch(x = shuffled.kmers, G = vcv, eps = 1e-4)
+    sim_h2p[i] = sim.out$vara[1,1]/(sim.out$vara[1,1]+sim.out$vare[1,1])
+  }
+  P = (length(which(sim_h2p > obs_h2p))+1)/(nReps+1)
+  return(P)
+}
+
+#eps 1e-6
+#compute_permutation_p_value <- function(kmers, vcv, obs_h2p) {
+  sim_h2p = numeric(nReps)
+  for (i in 1:nReps) {
+    #randomly permute k-mer values across the strains to destroy and relationship between they phylogeny and the k-mer count
+    shuffled.kmers = sample(x = kmers, size = length(kmers), replace = F)
+    names(shuffled.kmers) <- names(kmers)
+    sim.out = compar.lynch(x = shuffled.kmers, G = vcv, eps = 1e-6)
+    sim_h2p[i] = sim.out$vara[1,1]/(sim.out$vara[1,1]+sim.out$vare[1,1])
+  }
+  P = (length(which(sim_h2p > obs_h2p))+1)/(nReps+1)
+  return(P)
+}
+
+#eps 1e-8
+#compute_permutation_p_value <- function(kmers, vcv, obs_h2p) {
+  sim_h2p = numeric(nReps)
+  for (i in 1:nReps) {
+    #randomly permute k-mer values across the strains to destroy and relationship between they phylogeny and the k-mer count
+    shuffled.kmers = sample(x = kmers, size = length(kmers), replace = F)
+    names(shuffled.kmers) <- names(kmers)
+    sim.out = compar.lynch(x = shuffled.kmers, G = vcv, eps = 1e-8)
+    sim_h2p[i] = sim.out$vara[1,1]/(sim.out$vara[1,1]+sim.out$vare[1,1])
+  }
+  P = (length(which(sim_h2p > obs_h2p))+1)/(nReps+1)
+  return(P)
+}
+
+
+#compute p-val for minor mean Pi values via permutation
+p_minor_mean = compute_permutation_p_value(kmers = phenos[,"minor_mean"], vcv = vcv, obs_h2p = minor_mean_h2p)
+
+#eps 1e-4
+#P = 0.106
+#eps 1e-6
+#0.1088
+#eps 1e-8
+#0.111888
+
+
+#compute p-val for mean Pi values via permutation
+p_major_mean = compute_permutation_p_value(kmers = phenos[,"major_mean"], vcv = vcv, obs_h2p = major_mean_h2p)
+
+#eps 1e-4
+#0.104
+#eps 1e-6
+#0.10489
+#eps 1e-8
+#0.1248
+
+```
+
