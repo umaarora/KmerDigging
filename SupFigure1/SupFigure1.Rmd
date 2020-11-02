@@ -1,0 +1,240 @@
+---
+title: "SupFigure1"
+author: "Uma Arora"
+date: "11/2/2020"
+output: html_document
+---
+
+
+```{r setup, include=FALSE}
+library(dplyr)
+library(corrplot)
+```
+
+Exclude No PCR libraries
+129P2 NO PCR
+129P2 500 HC
+129S5 NO PCR
+
+```{r}
+k31set1 <- read.table(file = 'final.set1.k31.correctedcount.txt', header = TRUE)
+
+k31set1 <- k31set1[k31set1$LIBRARY != 'P2 NO PCR', ]
+k31set1 <- k31set1[k31set1$LIBRARY != 'SLX500HC', ]
+k31set1 <- k31set1[k31set1$LIBRARY != 'NO PCR', ]
+
+```
+
+
+
+```{r cars}
+
+corrplotdf <- data.frame(KMER = factor(),
+                         CORRECTEDCOUNT = numeric())
+
+
+
+for (i in levels(k31set1$LIBRARY)){
+  lib <- k31set1[k31set1$LIBRARY == i,]
+  lib <- lib[,c(1,12)]
+  colnames(lib) <- c("KMER", i)
+  corrplotdf <- merge(lib, corrplotdf, by = "KMER", all = TRUE)
+}
+
+```
+
+
+
+```{r}
+
+#Remove caroli, pahari, wild spret, inbred spret
+corrplotdfMusmus <- corrplotdf[,-c(1,9,10,11,12,13,14,15,16,27,37,86,87,88,89,90,91,92,93,95,97,99,103,104,105,106,107,108,109,110,111,112,113,120)]
+
+#Remove no PCR libraries
+corrplotdfMusmus <- corrplotdfMusmus[,-c(8,13,14)]
+
+corrplotdfMusmus <- na.omit(corrplotdfMusmus)
+
+##Reorder rows
+#with excluding no pcr libraries
+corrplotdfMusmusreorder <- corrplotdfMusmus[,c(12,83,20,25,8,9,23,29,10,11,78,14,15,21,19,26,17,24,22,30,16,28,13,18,27,1,2,3,4,5,6,7,31,32,33,34,35,36,50,51,60,61,70,71,79,80,81,82,37,38,39,52,53,54,55,56,57,58,59,62,63,64,65,66,67,68,69,72,73,74,75,76,77,40,41,42,43,44,45,46,47,48,49)]
+
+##Calculate correlations
+N <- cor(corrplotdfMusmusreorder)
+
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+
+svg(filename = 'corrplot_allstrains_library.svg', 
+    width = 15, 
+    height = 15)
+
+corrplot(N, 
+         type = "upper")
+
+dev.off()
+
+```
+
+Plots with only inbred strains
+
+```{r}
+#without noPCR
+corrplotdfMusmusreorderINBRED <- corrplotdfMusmusreorder[,1:25]
+
+N2 <- cor(corrplotdfMusmusreorderINBRED)
+
+svg(filename = 'corrplot_inbredstrains_GCnorm_library.svg', 
+    width = 6, 
+    height = 6)
+
+corrplot(N2, 
+         type = "upper",
+         cl.lim=c(0,1)) 
+
+         
+dev.off()
+
+
+
+```
+
+Statistics: Rho, p-value
+
+Between libraries
+
+	Between libraries
+CAST/EiJ	0.9989764
+129S5SvEvBrd	0.9930516
+	0.9932797
+	0.9949828
+C57BL/6NJ	0.999004
+129P2/OlaHsd	0.9863634 #no PCR
+	0.9921627 #no pcr
+	0.9959852 #no pcr
+	0.9933695
+	0.9876263 #no pcr
+	0.9961487#no pcr
+A/J	0.9968131
+	0.9980495
+	0.9984989
+WSB/EiJ	0.9993602
+129S1/SvImJ	0.9997391
+C3H/HeJ	0.999662
+DBA/2J	0.9989149
+PWK/PhJ	0.9902781
+
+1. CAST/EiJ libraries
+```{r}
+cor.test(corrplotdfMusmusreorderINBRED$LB4505650,corrplotdfMusmusreorderINBRED$LB3888061)
+```
+
+2. 129S5SvEvBrd libraries
+```{r}
+cor.test(corrplotdfMusmusreorderINBRED$SLX500DSS,corrplotdfMusmusreorderINBRED$SLX300DSS)
+
+```
+3. C57BL/6NJ libraries
+```{r}
+cor.test(corrplotdfMusmusreorderINBRED$LB4505614,corrplotdfMusmusreorderINBRED$LB3888056)
+```
+4. 129P2/OlaHsd libraries
+```{r}
+
+cor.test(corrplotdfMusmusreorderINBRED$`P2 SLX500DSS`,corrplotdfMusmusreorderINBRED$`P2 SLX300DSS`)
+
+```
+5. A/J libraries
+```{r}
+cor.test(corrplotdfMusmusreorderINBRED$LB7469040,corrplotdfMusmusreorderINBRED$LB5442420)
+cor.test(corrplotdfMusmusreorderINBRED$LB7469040,corrplotdfMusmusreorderINBRED$LB4505627)
+cor.test(corrplotdfMusmusreorderINBRED$LB5442420,corrplotdfMusmusreorderINBRED$LB4505627)
+```
+6. WSB/EiJ libraries
+```{r}
+cor.test(corrplotdfMusmusreorderINBRED$LB4505662,corrplotdfMusmusreorderINBRED$LB3888060)
+```
+
+7. 129S1/SvImJ libraries
+```{r}
+cor.test(corrplotdfMusmusreorderINBRED$LB4505687,corrplotdfMusmusreorderINBRED$LB3888089)
+```
+7. C3H/HeJ libraries
+```{r}
+cor.test(corrplotdfMusmusreorderINBRED$LB4505626,corrplotdfMusmusreorderINBRED$LB3888055)
+```
+8. DBA/2J libraries
+```{r}
+cor.test(corrplotdfMusmusreorderINBRED$LB4505698,corrplotdfMusmusreorderINBRED$LB3888057)
+```
+9. PWK/PhJ libraries
+```{r}
+cor.test(corrplotdfMusmusreorderINBRED$LB4505686,corrplotdfMusmusreorderINBRED$LB3888058)
+```
+
+```{r}
+libraries <- c(0.9989764,0.9930516,0.9932797,0.9949828,0.999004,0.9863634,0.9921627,0.9959852,0.9933695,0.9876263,0.9961487,0.9968131,0.9980495,0.9984989,0.9993602,0.9997391,0.999662,0.9989149,0.9902781)
+libraries <- as.data.frame(libraries)
+zalende <- as.data.frame(N2[-1,1])
+colnames(zalende) <- c("corr")
+fvb <-  as.data.frame(N2[-c(1:2),2])
+colnames(fvb) <- c("corr")
+cast1 <- as.data.frame(N2[-c(1:3),3])
+colnames(cast1) <- c("corr")
+cast2 <- as.data.frame(N2[-c(1:4),4])
+colnames(cast2) <- c("corr")
+S51 <- as.data.frame(N2[-c(1:5),5])
+colnames(S51) <- c("corr")
+s52 <- as.data.frame(N2[-c(1:6),6])
+colnames(s52) <- c("corr")
+b6n1 <- as.data.frame(N2[-c(1:7),7])
+colnames(b6n1) <- c("corr")
+b6n2 <- as.data.frame(N2[-c(1:8),8])
+colnames(b6n2) <- c("corr")
+p21 <- as.data.frame(N2[-c(1:9),9])
+colnames(p21) <- c("corr")
+p22 <- as.data.frame(N2[-c(1:10),10])
+colnames(p22) <- c("corr")
+molf <- as.data.frame(N2[-c(1:11),11])
+colnames(molf) <- c("corr")
+aj1 <- as.data.frame(N2[-c(1:12),12])
+colnames(aj1) <- c("corr")
+aj2 <- as.data.frame(N2[-c(1:13),13])
+colnames(aj2) <- c("corr")
+aj3 <- as.data.frame(N2[-c(1:14),14])
+colnames(aj3) <- c("corr")
+wsb1 <- as.data.frame(N2[-c(1:15),15])
+colnames(wsb1) <- c("corr")
+wsb2 <- as.data.frame(N2[-c(1:16),16])
+colnames(wsb2) <- c("corr")
+s11 <- as.data.frame(N2[-c(1:17),17])
+colnames(s11) <- c("corr")
+s12 <- as.data.frame(N2[-c(1:18),18])
+colnames(s12) <- c("corr")
+c3h1 <- as.data.frame(N2[-c(1:19),19])
+colnames(c3h1) <- c("corr")
+c3h2 <- as.data.frame(N2[-c(1:20),20])
+colnames(c3h2) <- c("corr")
+d21 <- as.data.frame(N2[-c(1:21),21])
+colnames(d21) <- c("corr")
+d22 <- as.data.frame(N2[-c(1:22),22])
+colnames(d22) <- c("corr")
+lewes <- as.data.frame(N2[-c(1:23),23])
+colnames(lewes) <- c("corr")
+pwk1 <- as.data.frame(N2[-c(1:24),24])
+colnames(pwk1) <- c("corr")
+
+
+strains <- rbind(zalende,fvb,cast1,cast2,S51,s52,b6n1,b6n2,p21,p22,molf,aj1,aj2,aj3,wsb1,wsb2,s11,s12,c3h1,c3h2,d21,d22,lewes,pwk1)
+
+mean(libraries$libraries)
+#[1] 0.9953824
+
+t.test(strains,libraries)
+```
+
