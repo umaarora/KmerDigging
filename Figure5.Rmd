@@ -1,0 +1,427 @@
+---
+title: "percent non-consensus"
+author: "Uma Arora"
+date: "9/1/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+minorsatellite <- 'GGAAAATGATAAAAACCACACTGTAGAACATATTAGATGAGTGAGTTACACTGAAAAACACATTCGTTGGAAACGGGATTTGTAGAACAGTGTATATCAATGAGTTACAATGAGAAACAT'
+minorsatellite <- strsplit(minorsatellite,split="")
+
+minorsatellite_c<- 'CCTTTTACTATTTTTGGTGTGACATCTTGTATAATCTACTCACTCAATGTGACTTTTTGTGTAAGCAACCTTTGCCCTAAACATCTTGTCACATATAGTTACTCAATGTTACTCTTTGTA'
+
+minorsatellite_c <- strsplit(minorsatellite_c,split="")
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+Forward direction
+```{r cars}
+path = "~/Desktop/Dumont_Lab/k-merDigging/centromere_kmers/polymorphisms/data/consensus_separated"
+fs = list.files(path, pattern = glob2rx("*.consensus.minor.forward.txt")) 
+
+for(f in fs){      
+  fname = file.path(path,f)
+  n = gsub("", "", f)
+  df = read.table(fname, header = TRUE)
+  dfnew <- data.frame(matrix(nrow = 120,ncol = 3))
+  colnames(dfnew) <- c('CONSENSUS','ALTERNATE','TOTAL')
+  dfnew[is.na(dfnew)] <- 0
+  df <- df[1:120,] + df[121:240,] + df[241:360,]
+  for (i in 1:nrow(df)){
+    letter <- minorsatellite[[1]][i]
+    consensus <- df[i,letter]
+    alt <- df[i,5] - df[i,letter]
+    dfnew[i,1] <- consensus
+    dfnew[i,2] <- alt
+    dfnew[i,3] <- df[i,5]
+  }
+  assign(n,dfnew)
+  rm(df)
+  rm(dfnew)
+}
+
+
+
+```
+
+Reverse direction
+```{r}
+path = "~/Desktop/Dumont_Lab/k-merDigging/centromere_kmers/polymorphisms/data/consensus_separated"
+fs = list.files(path, pattern = glob2rx("*.consensus.minor.reverse.txt")) 
+
+for(f in fs){      
+  fname = file.path(path,f)
+  n = gsub("", "", f)
+  df = read.table(fname, header = TRUE)
+  dfnew <- data.frame(matrix(nrow = 120,ncol = 3))
+  colnames(dfnew) <- c('CONSENSUS','ALTERNATE','TOTAL')
+  dfnew[is.na(dfnew)] <- 0
+  df <- df[1:120,] + df[121:240,] + df[241:360,]
+  for (i in 1:nrow(df)){
+    letter <- minorsatellite_c[[1]][i]
+    consensus <- df[i,letter]
+    alt <- df[i,5] - df[i,letter]
+    dfnew[i,1] <- consensus
+    dfnew[i,2] <- alt
+    dfnew[i,3] <- df[i,5]
+  }
+  assign(n,dfnew)
+  rm(df)
+  rm(dfnew)
+}
+
+```
+
+Combine forward and reverse
+```{r}
+P2 <- `129P2.SLX200NOPCR.consensus.minor.forward.txt` + `129P2.SLX200NOPCR.consensus.minor.reverse.txt` + `129P2.SLX500HC.consensus.minor.forward.txt` + `129P2.SLX500HC.consensus.minor.reverse.txt` + `129P2.SLX300DSS.consensus.minor.forward.txt` + `129P2.SLX300DSS.consensus.minor.reverse.txt` + `129P2.SLX500DSS.consensus.minor.forward.txt` + `129P2.SLX500DSS.consensus.minor.reverse.txt`
+P2[,2] <- P2[,2]/P2[,3]
+P2[,1] <- P2[,1]/P2[,3]
+colnames(P2) <- c("129P2/OlaHsd_Consensus","129P2/OlaHsd", "TOTAL")
+
+
+S1 <- `129S1.LB3888089.consensus.minor.forward.txt` + `129S1.LB3888089.consensus.minor.reverse.txt` + `129S1.LB4505687.consensus.minor.forward.txt` + `129S1.LB4505687.consensus.minor.reverse.txt`
+S1[,2] <- S1[,2]/S1[,3]
+S1[,1] <- S1[,1]/S1[,3]
+colnames(S1) <- c("129SvImJ_Consensus","129SvImJ", "TOTAL")
+
+S5 <- `129S5.SLX200NOPCR.consensus.minor.forward.txt` + `129S5.SLX200NOPCR.consensus.minor.reverse.txt` + `129S5.SLX300DSS.consensus.minor.forward.txt` + `129S5.SLX300DSS.consensus.minor.reverse.txt` + `129S5.SLX500DSS.consensus.minor.forward.txt` + `129S5.SLX500DSS.consensus.minor.reverse.txt`
+S5[,2] <- S5[,2]/S5[,3]
+S5[,1] <- S5[,1]/S5[,3]
+colnames(S5) <- c("129S5SvEvBrd_Consensus","129S5SvEvBrd", "TOTAL")
+
+AJ <- AJ.LB4505627.consensus.minor.forward.txt + AJ.LB4505627.consensus.minor.reverse.txt + AJ.LB5442420.consensus.minor.forward.txt + AJ.LB5442420.consensus.minor.reverse.txt + AJ.LB7469040.consensus.minor.forward.txt + AJ.LB7469040.consensus.minor.reverse.txt
+AJ[,2] <- AJ[,2]/AJ[,3]
+AJ[,1] <- AJ[,1]/AJ[,3]
+colnames(AJ) <- c("A/J_Consensus","A/J", "TOTAL")
+
+B6N <- B6N.LB3888056.consensus.minor.forward.txt + B6N.LB3888056.consensus.minor.reverse.txt + B6N.LB4505614.consensus.minor.forward.txt + B6N.LB4505614.consensus.minor.reverse.txt
+B6N[,2] <- B6N[,2]/B6N[,3]
+B6N[,1] <- B6N[,1]/B6N[,3]
+colnames(B6N) <- c("C57BL/6NJ_Consensus","C57BL/6NJ", "TOTAL")
+
+C3H <- C3H.LB3888055.consensus.minor.forward.txt + C3H.LB3888055.consensus.minor.reverse.txt + C3H.LB4505626.consensus.minor.forward.txt + C3H.LB4505626.consensus.minor.reverse.txt
+C3H[,2] <- C3H[,2]/C3H[,3]
+C3H[,1] <- C3H[,1]/C3H[,3]
+colnames(C3H) <- c("C3H/HeJ_Consensus","C3H/HeJ", "TOTAL")
+
+wildcast <- cast.h12.consensus.minor.forward.txt + cast.h12.consensus.minor.reverse.txt + cast.h14.consensus.minor.forward.txt + cast.h14.consensus.minor.reverse.txt + cast.h15.consensus.minor.forward.txt + cast.h15.consensus.minor.reverse.txt + cast.h24.consensus.minor.forward.txt + cast.h24.consensus.minor.reverse.txt + cast.h26.consensus.minor.forward.txt + cast.h26.consensus.minor.reverse.txt + cast.h27.consensus.minor.forward.txt + cast.h27.consensus.minor.reverse.txt + cast.h28.consensus.minor.forward.txt + cast.h28.consensus.minor.reverse.txt + cast.h30.consensus.minor.forward.txt + cast.h30.consensus.minor.reverse.txt + cast.h34.consensus.minor.forward.txt + cast.h34.consensus.minor.reverse.txt + cast.h36.consensus.minor.forward.txt + cast.h36.consensus.minor.reverse.txt
+wildcast[,2] <- wildcast[,2]/wildcast[,3]
+wildcast[,1] <- wildcast[,1]/wildcast[,3]
+colnames(wildcast) <- c("wildcast_Consensus","castaneus India", "TOTAL")
+
+
+CAST <- CAST.LB3888061.consensus.minor.forward.txt + CAST.LB3888061.consensus.minor.reverse.txt + CAST.LB4505650.consensus.minor.forward.txt + CAST.LB4505650.consensus.minor.reverse.txt
+CAST[,2] <- CAST[,2]/CAST[,3]
+CAST[,1] <- CAST[,1]/CAST[,3]
+colnames(CAST) <- c("CAST/EiJ_Consensus","CAST/EiJ", "TOTAL")
+
+
+D2 <- D2.LB3888057.consensus.minor.forward.txt + D2.LB3888057.consensus.minor.reverse.txt + D2.LB4505698.consensus.minor.forward.txt + D2.LB4505698.consensus.minor.reverse.txt
+D2[,2] <- D2[,2]/D2[,3]
+D2[,1] <- D2[,1]/D2[,3]
+colnames(D2) <- c("DBA/2J_Consensus","DBA/2J", "TOTAL")
+
+
+domfrance <- dom.14.consensus.minor.forward.txt + dom.14.consensus.minor.reverse.txt + dom.15B.consensus.minor.forward.txt + dom.15B.consensus.minor.reverse.txt + dom.16B.consensus.minor.forward.txt + dom.16B.consensus.minor.reverse.txt + dom.18B.consensus.minor.forward.txt + dom.18B.consensus.minor.reverse.txt + dom.B2C.consensus.minor.forward.txt + dom.B2C.consensus.minor.reverse.txt + dom.C1.consensus.minor.forward.txt + dom.C1.consensus.minor.reverse.txt + dom.E1.consensus.minor.forward.txt + dom.E1.consensus.minor.reverse.txt + dom.F1B.consensus.minor.forward.txt + dom.F1B.consensus.minor.reverse.txt
+domfrance[,2] <- domfrance[,2]/domfrance[,3]
+domfrance[,1] <- domfrance[,1]/domfrance[,3]
+colnames(domfrance) <- c("domfrance_Consensus","domesticus France", "TOTAL")
+
+
+domgermany <- dom.TP1.consensus.minor.forward.txt + dom.TP1.consensus.minor.reverse.txt + dom.TP121B.consensus.minor.forward.txt + dom.TP121B.consensus.minor.reverse.txt + `dom.TP3-92.consensus.minor.forward.txt` + `dom.TP3-92.consensus.minor.reverse.txt` + dom.TP4a.consensus.minor.forward.txt + dom.TP4a.consensus.minor.reverse.txt + dom.TP51D.consensus.minor.forward.txt + dom.TP51D.consensus.minor.reverse.txt + `dom.TP7-10F1A2.consensus.minor.forward.txt` + `dom.TP7-10F1A2.consensus.minor.reverse.txt` + dom.TP81B.consensus.minor.forward.txt + dom.TP81B.consensus.minor.reverse.txt
+domgermany[,2] <- domgermany[,2]/domgermany[,3]
+domgermany[,1] <- domgermany[,1]/domgermany[,3]
+colnames(domgermany) <- c("domgermany_Consensus","domesticus Germany", "TOTAL")
+
+
+domiran <- dom.JR11.consensus.minor.forward.txt + dom.JR11.consensus.minor.reverse.txt + dom.JR15.consensus.minor.forward.txt + dom.JR15.consensus.minor.reverse.txt + `dom.JR2-F1C.consensus.minor.forward.txt` + `dom.JR2-F1C.consensus.minor.reverse.txt` + `dom.JR5-F1C.consensus.minor.forward.txt` + `dom.JR5-F1C.consensus.minor.reverse.txt` + `dom.JR7-F1C.consensus.minor.forward.txt` + `dom.JR7-F1C.consensus.minor.reverse.txt` + `dom.JR8-F1A.consensus.minor.forward.txt` + `dom.JR8-F1A.consensus.minor.reverse.txt` + dom.AH15.consensus.minor.forward.txt + dom.AH15.consensus.minor.reverse.txt + dom.AH23.consensus.minor.forward.txt + dom.AH23.consensus.minor.reverse.txt
+domiran[,2] <- domiran[,2]/domiran[,3]
+domiran[,1] <- domiran[,1]/domiran[,3]
+colnames(domiran) <- c("domiran_Consensus","domesticus Iran", "TOTAL")
+
+FVB <- FVB.1.consensus.minor.forward.txt + FVB.1.consensus.minor.reverse.txt
+FVB[,2] <- FVB[,2]/FVB[,3]
+FVB[,1] <- FVB[,1]/FVB[,3]
+colnames(FVB) <- c("FVB/NJ_Consensus","FVB/NJ", "TOTAL")
+
+helg <- helg.HG06.consensus.minor.forward.txt + helg.HG06.consensus.minor.reverse.txt + helg.HG08.consensus.minor.forward.txt + helg.HG08.consensus.minor.reverse.txt + helg.HG13.consensus.minor.forward.txt + helg.HG13.consensus.minor.reverse.txt
+helg[,2] <- helg[,2]/helg[,3]
+helg[,1] <- helg[,1]/helg[,3]
+colnames(helg) <- c("helg_Consensus","domesticus Heligoland", "TOTAL")
+
+LEWES <- LEWES.LBA.consensus.minor.forward.txt + LEWES.LBA.consensus.minor.reverse.txt
+LEWES[,2] <- LEWES[,2]/LEWES[,3]
+LEWES[,1] <- LEWES[,1]/LEWES[,3]
+colnames(LEWES) <- c("LEWES/EiJ_Consensus","LEWES/EiJ", "TOTAL")
+
+MOLF <- MOLF.2.consensus.minor.forward.txt + MOLF.2.consensus.minor.reverse.txt
+MOLF[,2] <- MOLF[,2]/MOLF[,3]
+MOLF[,1] <- MOLF[,1]/MOLF[,3]
+colnames(MOLF) <- c("MOLF/EiJ_Consensus","MOLF/EiJ", "TOTAL")
+
+muscczech <- musc.CR12.consensus.minor.forward.txt + musc.CR12.consensus.minor.reverse.txt + musc.CR13.consensus.minor.forward.txt + musc.CR13.consensus.minor.reverse.txt + musc.CR16.consensus.minor.forward.txt + musc.CR16.consensus.minor.reverse.txt + musc.CR23.consensus.minor.forward.txt + musc.CR23.consensus.minor.reverse.txt + musc.CR25.consensus.minor.forward.txt + musc.CR25.consensus.minor.reverse.txt + musc.CR29.consensus.minor.forward.txt + musc.CR29.consensus.minor.reverse.txt +  musc.CR46.consensus.minor.forward.txt + musc.CR46.consensus.minor.reverse.txt + musc.CR59.consensus.minor.forward.txt + musc.CR59.consensus.minor.reverse.txt
+muscczech[,2] <- muscczech[,2]/muscczech[,3]
+muscczech[,1] <- muscczech[,1]/muscczech[,3]
+colnames(muscczech) <- c("muscczech_Consensus","musculus Czech", "TOTAL")
+
+
+muscafghan <- musc.396.consensus.minor.forward.txt + musc.396.consensus.minor.reverse.txt + musc.413.consensus.minor.forward.txt + musc.413.consensus.minor.reverse.txt + musc.416.consensus.minor.forward.txt + musc.416.consensus.minor.reverse.txt + musc.424.consensus.minor.forward.txt + musc.424.consensus.minor.reverse.txt + musc.435.consensus.minor.forward.txt + musc.435.consensus.minor.reverse.txt + musc.444.consensus.minor.forward.txt + musc.444.consensus.minor.reverse.txt
+muscafghan[,2] <- muscafghan[,2]/muscafghan[,3]
+muscafghan[,1] <- muscafghan[,1]/muscafghan[,3]
+colnames(muscafghan) <- c("muscafghan_Consensus","musculus Afghanistan", "TOTAL")
+
+
+musckazh <- musc.AL1.consensus.minor.forward.txt + musc.AL1.consensus.minor.reverse.txt + musc.AL16.consensus.minor.forward.txt + musc.AL16.consensus.minor.reverse.txt + musc.AL19.consensus.minor.forward.txt + musc.AL19.consensus.minor.reverse.txt + musc.AL33.consensus.minor.forward.txt + musc.AL33.consensus.minor.reverse.txt + musc.AL38.consensus.minor.forward.txt + musc.AL38.consensus.minor.reverse.txt + musc.AL40.consensus.minor.forward.txt + musc.AL40.consensus.minor.reverse.txt + musc.AL41.consensus.minor.forward.txt + musc.AL41.consensus.minor.reverse.txt + musc.AL42.consensus.minor.forward.txt + musc.AL42.consensus.minor.reverse.txt
+musckazh[,2] <- musckazh[,2]/musckazh[,3]
+musckazh[,1] <- musckazh[,1]/musckazh[,3]
+colnames(musckazh) <- c("musckazh_Consensus","musculus Kazhakstan", "TOTAL")
+
+PWK <- PWK.LB3888058.consensus.minor.forward.txt + PWK.LB3888058.consensus.minor.reverse.txt + PWK.LB4505686.consensus.minor.forward.txt + PWK.LB4505686.consensus.minor.reverse.txt
+PWK[,2] <- PWK[,2]/PWK[,3]
+PWK[,1] <- PWK[,1]/PWK[,3]
+colnames(PWK) <- c("PWK/PhJ_Consensus","PWK/PhJ", "TOTAL")
+
+WSB <- WSB.LB3888060.consensus.minor.forward.txt + WSB.LB3888060.consensus.minor.reverse.txt + WSB.LB4505662.consensus.minor.forward.txt + WSB.LB4505662.consensus.minor.reverse.txt
+WSB[,2] <- WSB[,2]/WSB[,3]
+WSB[,1] <- WSB[,1]/WSB[,3]
+colnames(WSB) <- c("WSB/EiJ_Consensus","WSB/EiJ", "TOTAL")
+
+ZALENDE <- ZALENDE.LBB.consensus.minor.forward.txt + ZALENDE.LBB.consensus.minor.reverse.txt
+ZALENDE[,2] <- ZALENDE[,2]/ZALENDE[,3]
+ZALENDE[,1] <- ZALENDE[,1]/ZALENDE[,3]
+colnames(ZALENDE) <- c("ZALENDE/EiJ_Consensus","ZALENDE/EiJ", "TOTAL")
+
+```
+
+Make merged df for heatmap
+```{r}
+
+merged_nonconsensus <- cbind(P2[,2],ZALENDE[,2],S5[,2],S1[,2],AJ[,2],FVB[,2],B6N[,2],C3H[,2],D2[,2],LEWES[,2],WSB[,2],domfrance[,2],domgermany[,2],domiran[,2],helg[,2],MOLF[,2],PWK[,2],muscafghan[,2],muscczech[,2],musckazh[,2],CAST[,2],wildcast[,2])
+
+merged_nonconsensus <- as.data.frame(merged_nonconsensus)
+merged_nonconsensus <- merged_nonconsensus * 100
+colnames(merged_nonconsensus) <- c("129P2/OlaHsd","ZALENDE/EiJ","129S5SvEvBrd","129S1SvImJ","A/J","FVB/NJ","C57BL/6NJ","C3H/HeJ","DBA/2J","LEWES/EiJ","WSB/EiJ","France","Germany","Iran","Heligoland","MOLF/EiJ","PWK/PhJ","Afhanistan","Czech","Kazhakstan","CAST/EiJ","India")
+
+```
+
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+pheatmap(merged_nonconsensus, cluster_rows = FALSE, cluster_cols = FALSE)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+```{r}
+majorsatellite <- 'GGACCTGGAATATGGCGAGAAAACTGAAAATCACGGAAAATGAGAAATACACACTTTAGGACGTGAAATATGGCGAGGAAAACTGAAAAAGGTGGAAAATTTAGAAATGTCCACTGTAGGACGTGGAATATGGCAAGAAAACTGAAAATCATGGAAAATGAGAAACATCCACTTGACGACTTGAAAAATGACGAAATCACTAAAAAACGTGAAAAATGAGAAATGCACACTGAA'
+majorsatellite <- strsplit(majorsatellite,split="")
+
+majorsatellite_c<- 'CCTGGACCTTATACCGCTCTTTTGACTTTTAGTGCCTTTTACTCTTTATGTGTGAAATCCTGCACTTTATACCGCTCCTTTTGACTTTTTCCACCTTTTAAATCTTTACAGGTGACATCCTGCACCTTATACCGTTCTTTTGACTTTTAGTACCTTTTACTCTTTGTAGGTGAACTGCTGAACTTTTTACTGCTTTAGTGATTTTTTGCACTTTTTACTCTTTACGTGTGACTT'
+
+majorsatellite_c <- strsplit(majorsatellite_c,split="")
+```
+
+
+```{r}
+path = "~/Desktop/Dumont_Lab/k-merDigging/centromere_kmers/polymorphisms/data/consensus_separated"
+fs = list.files(path, pattern = glob2rx("*.consensus.major.forward.txt")) 
+
+for(f in fs){      
+  fname = file.path(path,f)
+  n = gsub("", "", f)
+  df = read.table(fname, header = TRUE)
+  dfnew <- data.frame(matrix(nrow = 234,ncol = 3))
+  colnames(dfnew) <- c('CONSENSUS','ALTERNATE','TOTAL')
+  dfnew[is.na(dfnew)] <- 0
+  df <- df[1:234,] + df[235:468,] + df[469:702,]
+  for (i in 1:nrow(df)){
+    letter <- majorsatellite[[1]][i]
+    consensus <- df[i,letter]
+    alt <- df[i,5] - df[i,letter]
+    dfnew[i,1] <- consensus
+    dfnew[i,2] <- alt
+    dfnew[i,3] <- df[i,5]
+  }
+  assign(n,dfnew)
+  rm(df)
+  rm(dfnew)
+}
+
+
+
+```
+
+Reverse direction
+```{r}
+path = "~/Desktop/Dumont_Lab/k-merDigging/centromere_kmers/polymorphisms/data/consensus_separated"
+fs = list.files(path, pattern = glob2rx("*.consensus.major.reverse.txt")) 
+
+for(f in fs){      
+  fname = file.path(path,f)
+  n = gsub("", "", f)
+  df = read.table(fname, header = TRUE)
+  dfnew <- data.frame(matrix(nrow = 234,ncol = 3))
+  colnames(dfnew) <- c('CONSENSUS','ALTERNATE','TOTAL')
+  dfnew[is.na(dfnew)] <- 0
+  df <- df[1:234,] + df[235:468,] + df[469:702,]
+  for (i in 1:nrow(df)){
+    letter <- majorsatellite_c[[1]][i]
+    consensus <- df[i,letter]
+    alt <- df[i,5] - df[i,letter]
+    dfnew[i,1] <- consensus
+    dfnew[i,2] <- alt
+    dfnew[i,3] <- df[i,5]
+  }
+  assign(n,dfnew)
+  rm(df)
+  rm(dfnew)
+}
+
+```
+
+Combine forward and reverse
+```{r}
+P2 <- `129P2.SLX200NOPCR.consensus.major.forward.txt` + `129P2.SLX200NOPCR.consensus.major.reverse.txt` + `129P2.SLX500HC.consensus.major.forward.txt` + `129P2.SLX500HC.consensus.major.reverse.txt` + `129P2.SLX300DSS.consensus.major.forward.txt` + `129P2.SLX300DSS.consensus.major.reverse.txt` + `129P2.SLX500DSS.consensus.major.forward.txt` + `129P2.SLX500DSS.consensus.major.reverse.txt`
+P2[,2] <- P2[,2]/P2[,3]
+P2[,1] <- P2[,1]/P2[,3]
+colnames(P2) <- c("129P2/OlaHsd_Consensus","129P2/OlaHsd", "TOTAL")
+
+S1 <- `129S1.LB3888089.consensus.major.forward.txt` + `129S1.LB3888089.consensus.major.reverse.txt` + `129S1.LB4505687.consensus.major.forward.txt` + `129S1.LB4505687.consensus.major.reverse.txt`
+S1[,2] <- S1[,2]/S1[,3]
+S1[,1] <- S1[,1]/S1[,3]
+colnames(S1) <- c("129SvImJ_Consensus","129SvImJ", "TOTAL")
+
+S5 <- `129S5.SLX200NOPCR.consensus.major.forward.txt` + `129S5.SLX200NOPCR.consensus.major.reverse.txt` + `129S5.SLX300DSS.consensus.major.forward.txt` + `129S5.SLX300DSS.consensus.major.reverse.txt` + `129S5.SLX500DSS.consensus.major.forward.txt` + `129S5.SLX500DSS.consensus.major.reverse.txt`
+S5[,2] <- S5[,2]/S5[,3]
+S5[,1] <- S5[,1]/S5[,3]
+colnames(S5) <- c("129S5SvEvBrd_Consensus","129S5SvEvBrd", "TOTAL")
+
+AJ <- AJ.LB4505627.consensus.major.forward.txt + AJ.LB4505627.consensus.major.reverse.txt + AJ.LB5442420.consensus.major.forward.txt + AJ.LB5442420.consensus.major.reverse.txt + AJ.LB7469040.consensus.major.forward.txt + AJ.LB7469040.consensus.major.reverse.txt
+AJ[,2] <- AJ[,2]/AJ[,3]
+AJ[,1] <- AJ[,1]/AJ[,3]
+colnames(AJ) <- c("A/J_Consensus","A/J", "TOTAL")
+
+B6N <- B6N.LB3888056.consensus.major.forward.txt + B6N.LB3888056.consensus.major.reverse.txt + B6N.LB4505614.consensus.major.forward.txt + B6N.LB4505614.consensus.major.reverse.txt
+B6N[,2] <- B6N[,2]/B6N[,3]
+B6N[,1] <- B6N[,1]/B6N[,3]
+colnames(B6N) <- c("C57BL/6NJ_Consensus","C57BL/6NJ", "TOTAL")
+
+C3H <- C3H.LB3888055.consensus.major.forward.txt + C3H.LB3888055.consensus.major.reverse.txt + C3H.LB4505626.consensus.major.forward.txt + C3H.LB4505626.consensus.major.reverse.txt
+C3H[,2] <- C3H[,2]/C3H[,3]
+C3H[,1] <- C3H[,1]/C3H[,3]
+colnames(C3H) <- c("C3H/HeJ_Consensus","C3H/HeJ", "TOTAL")
+
+wildcast <- cast.h12.consensus.major.forward.txt + cast.h12.consensus.major.reverse.txt + cast.h14.consensus.major.forward.txt + cast.h14.consensus.major.reverse.txt + cast.h15.consensus.major.forward.txt + cast.h15.consensus.major.reverse.txt + cast.h24.consensus.major.forward.txt + cast.h24.consensus.major.reverse.txt + cast.h26.consensus.major.forward.txt + cast.h26.consensus.major.reverse.txt + cast.h27.consensus.major.forward.txt + cast.h27.consensus.major.reverse.txt + cast.h28.consensus.major.forward.txt + cast.h28.consensus.major.reverse.txt + cast.h30.consensus.major.forward.txt + cast.h30.consensus.major.reverse.txt + cast.h34.consensus.major.forward.txt + cast.h34.consensus.major.reverse.txt + cast.h36.consensus.major.forward.txt + cast.h36.consensus.major.reverse.txt
+wildcast[,2] <- wildcast[,2]/wildcast[,3]
+wildcast[,1] <- wildcast[,1]/wildcast[,3]
+colnames(wildcast) <- c("wildcast_Consensus","castaneus India", "TOTAL")
+
+
+CAST <- CAST.LB3888061.consensus.major.forward.txt + CAST.LB3888061.consensus.major.reverse.txt + CAST.LB4505650.consensus.major.forward.txt + CAST.LB4505650.consensus.major.reverse.txt
+CAST[,2] <- CAST[,2]/CAST[,3]
+CAST[,1] <- CAST[,1]/CAST[,3]
+colnames(CAST) <- c("CAST/EiJ_Consensus","CAST/EiJ", "TOTAL")
+
+
+D2 <- D2.LB3888057.consensus.major.forward.txt + D2.LB3888057.consensus.major.reverse.txt + D2.LB4505698.consensus.major.forward.txt + D2.LB4505698.consensus.major.reverse.txt
+D2[,2] <- D2[,2]/D2[,3]
+D2[,1] <- D2[,1]/D2[,3]
+colnames(D2) <- c("DBA/2J_Consensus","DBA/2J", "TOTAL")
+
+
+domfrance <- dom.14.consensus.major.forward.txt + dom.14.consensus.major.reverse.txt + dom.15B.consensus.major.forward.txt + dom.15B.consensus.major.reverse.txt + dom.16B.consensus.major.forward.txt + dom.16B.consensus.major.reverse.txt + dom.18B.consensus.major.forward.txt + dom.18B.consensus.major.reverse.txt + dom.B2C.consensus.major.forward.txt + dom.B2C.consensus.major.reverse.txt + dom.C1.consensus.major.forward.txt + dom.C1.consensus.major.reverse.txt + dom.E1.consensus.major.forward.txt + dom.E1.consensus.major.reverse.txt + dom.F1B.consensus.major.forward.txt + dom.F1B.consensus.major.reverse.txt
+domfrance[,2] <- domfrance[,2]/domfrance[,3]
+domfrance[,1] <- domfrance[,1]/domfrance[,3]
+colnames(domfrance) <- c("domfrance_Consensus","domesticus France", "TOTAL")
+
+
+domgermany <- dom.TP1.consensus.major.forward.txt + dom.TP1.consensus.major.reverse.txt + dom.TP121B.consensus.major.forward.txt + dom.TP121B.consensus.major.reverse.txt + `dom.TP3-92.consensus.major.forward.txt` + `dom.TP3-92.consensus.major.reverse.txt` + dom.TP4a.consensus.major.forward.txt + dom.TP4a.consensus.major.reverse.txt + dom.TP51D.consensus.major.forward.txt + dom.TP51D.consensus.major.reverse.txt + `dom.TP7-10F1A2.consensus.major.forward.txt` + `dom.TP7-10F1A2.consensus.major.reverse.txt` + dom.TP81B.consensus.major.forward.txt + dom.TP81B.consensus.major.reverse.txt
+domgermany[,2] <- domgermany[,2]/domgermany[,3]
+domgermany[,1] <- domgermany[,1]/domgermany[,3]
+colnames(domgermany) <- c("domgermany_Consensus","domesticus Germany", "TOTAL")
+
+
+domiran <- dom.JR11.consensus.major.forward.txt + dom.JR11.consensus.major.reverse.txt + dom.JR15.consensus.major.forward.txt + dom.JR15.consensus.major.reverse.txt + `dom.JR2-F1C.consensus.major.forward.txt` + `dom.JR2-F1C.consensus.major.reverse.txt` + `dom.JR5-F1C.consensus.major.forward.txt` + `dom.JR5-F1C.consensus.major.reverse.txt` + `dom.JR7-F1C.consensus.major.forward.txt` + `dom.JR7-F1C.consensus.major.reverse.txt` + `dom.JR8-F1A.consensus.major.forward.txt` + `dom.JR8-F1A.consensus.major.reverse.txt` + dom.AH15.consensus.major.forward.txt + dom.AH15.consensus.major.reverse.txt + dom.AH23.consensus.major.forward.txt + dom.AH23.consensus.major.reverse.txt
+domiran[,2] <- domiran[,2]/domiran[,3]
+domiran[,1] <- domiran[,1]/domiran[,3]
+colnames(domiran) <- c("domiran_Consensus","domesticus Iran", "TOTAL")
+
+FVB <- FVB.1.consensus.major.forward.txt + FVB.1.consensus.major.reverse.txt
+FVB[,2] <- FVB[,2]/FVB[,3]
+FVB[,1] <- FVB[,1]/FVB[,3]
+colnames(FVB) <- c("FVB/NJ_Consensus","FVB/NJ", "TOTAL")
+
+helg <- helg.HG06.consensus.major.forward.txt + helg.HG06.consensus.major.reverse.txt + helg.HG08.consensus.major.forward.txt + helg.HG08.consensus.major.reverse.txt + helg.HG13.consensus.major.forward.txt + helg.HG13.consensus.major.reverse.txt
+helg[,2] <- helg[,2]/helg[,3]
+helg[,1] <- helg[,1]/helg[,3]
+colnames(helg) <- c("helg_Consensus","domesticus Heligoland", "TOTAL")
+
+LEWES <- LEWES.LBA.consensus.major.forward.txt + LEWES.LBA.consensus.major.reverse.txt
+LEWES[,2] <- LEWES[,2]/LEWES[,3]
+LEWES[,1] <- LEWES[,1]/LEWES[,3]
+colnames(LEWES) <- c("LEWES/EiJ_Consensus","LEWES/EiJ", "TOTAL")
+
+MOLF <- MOLF.2.consensus.major.forward.txt + MOLF.2.consensus.major.reverse.txt
+MOLF[,2] <- MOLF[,2]/MOLF[,3]
+MOLF[,1] <- MOLF[,1]/MOLF[,3]
+colnames(MOLF) <- c("MOLF/EiJ_Consensus","MOLF/EiJ", "TOTAL")
+
+muscczech <- musc.CR12.consensus.major.forward.txt + musc.CR12.consensus.major.reverse.txt + musc.CR13.consensus.major.forward.txt + musc.CR13.consensus.major.reverse.txt + musc.CR16.consensus.major.forward.txt + musc.CR16.consensus.major.reverse.txt + musc.CR23.consensus.major.forward.txt + musc.CR23.consensus.major.reverse.txt + musc.CR25.consensus.major.forward.txt + musc.CR25.consensus.major.reverse.txt + musc.CR29.consensus.major.forward.txt + musc.CR29.consensus.major.reverse.txt +  musc.CR46.consensus.major.forward.txt + musc.CR46.consensus.major.reverse.txt + musc.CR59.consensus.major.forward.txt + musc.CR59.consensus.major.reverse.txt
+muscczech[,2] <- muscczech[,2]/muscczech[,3]
+muscczech[,1] <- muscczech[,1]/muscczech[,3]
+colnames(muscczech) <- c("muscczech_Consensus","musculus Czech", "TOTAL")
+
+
+muscafghan <- musc.396.consensus.major.forward.txt + musc.396.consensus.major.reverse.txt + musc.413.consensus.major.forward.txt + musc.413.consensus.major.reverse.txt + musc.416.consensus.major.forward.txt + musc.416.consensus.major.reverse.txt + musc.424.consensus.major.forward.txt + musc.424.consensus.major.reverse.txt + musc.435.consensus.major.forward.txt + musc.435.consensus.major.reverse.txt + musc.444.consensus.major.forward.txt + musc.444.consensus.major.reverse.txt
+muscafghan[,2] <- muscafghan[,2]/muscafghan[,3]
+muscafghan[,1] <- muscafghan[,1]/muscafghan[,3]
+colnames(muscafghan) <- c("muscafghan_Consensus","musculus Afghanistan", "TOTAL")
+
+
+musckazh <- musc.AL1.consensus.major.forward.txt + musc.AL1.consensus.major.reverse.txt + musc.AL16.consensus.major.forward.txt + musc.AL16.consensus.major.reverse.txt + musc.AL19.consensus.major.forward.txt + musc.AL19.consensus.major.reverse.txt + musc.AL33.consensus.major.forward.txt + musc.AL33.consensus.major.reverse.txt + musc.AL38.consensus.major.forward.txt + musc.AL38.consensus.major.reverse.txt + musc.AL40.consensus.major.forward.txt + musc.AL40.consensus.major.reverse.txt + musc.AL41.consensus.major.forward.txt + musc.AL41.consensus.major.reverse.txt + musc.AL42.consensus.major.forward.txt + musc.AL42.consensus.major.reverse.txt
+musckazh[,2] <- musckazh[,2]/musckazh[,3]
+musckazh[,1] <- musckazh[,1]/musckazh[,3]
+colnames(musckazh) <- c("musckazh_Consensus","musculus Kazhakstan", "TOTAL")
+
+PWK <- PWK.LB3888058.consensus.major.forward.txt + PWK.LB3888058.consensus.major.reverse.txt + PWK.LB4505686.consensus.major.forward.txt + PWK.LB4505686.consensus.major.reverse.txt
+PWK[,2] <- PWK[,2]/PWK[,3]
+PWK[,1] <- PWK[,1]/PWK[,3]
+colnames(PWK) <- c("PWK/PhJ_Consensus","PWK/PhJ", "TOTAL")
+
+WSB <- WSB.LB3888060.consensus.major.forward.txt + WSB.LB3888060.consensus.major.reverse.txt + WSB.LB4505662.consensus.major.forward.txt + WSB.LB4505662.consensus.major.reverse.txt
+WSB[,2] <- WSB[,2]/WSB[,3]
+WSB[,1] <- WSB[,1]/WSB[,3]
+colnames(WSB) <- c("WSB/EiJ_Consensus","WSB/EiJ", "TOTAL")
+
+ZALENDE <- ZALENDE.LBB.consensus.major.forward.txt + ZALENDE.LBB.consensus.major.reverse.txt
+ZALENDE[,2] <- ZALENDE[,2]/ZALENDE[,3]
+ZALENDE[,1] <- ZALENDE[,1]/ZALENDE[,3]
+colnames(ZALENDE) <- c("ZALENDE/EiJ_Consensus","ZALENDE/EiJ", "TOTAL")
+
+```
+
+Make merged df for heatmap
+```{r}
+
+merged_nonconsensus <- cbind(P2[,2],ZALENDE[,2],S5[,2],S1[,2],AJ[,2],FVB[,2],B6N[,2],C3H[,2],D2[,2],LEWES[,2],WSB[,2],domfrance[,2],domgermany[,2],domiran[,2],helg[,2],MOLF[,2],PWK[,2],muscafghan[,2],muscczech[,2],musckazh[,2],CAST[,2],wildcast[,2])
+
+merged_nonconsensus <- as.data.frame(merged_nonconsensus)
+merged_nonconsensus <- merged_nonconsensus * 100
+colnames(merged_nonconsensus) <- c("129P2/OlaHsd","ZALENDE/EiJ","129S5SvEvBrd","129S1SvImJ","A/J","FVB/NJ","C57BL/6NJ","C3H/HeJ","DBA/2J","LEWES/EiJ","WSB/EiJ","France","Germany","Iran","Heligoland","MOLF/EiJ","PWK/PhJ","Afhanistan","Czech","Kazhakstan","CAST/EiJ","India")
+
+```
+
+
+```{r pressure, echo=FALSE}
+pheatmap(merged_nonconsensus, cluster_rows = FALSE, cluster_cols = FALSE)
+```
