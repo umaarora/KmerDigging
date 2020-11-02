@@ -6,6 +6,12 @@ This manuscript utilizes publicly available sequencing data from 3 different pro
 2) Wild mouse genomes project: http://wwwuser.gwdg.de/~evolbio/evolgen/wildmouse/
 3) Mus caroli and Mus pahari genome assemblies: "Repeat associated mechanisms of genome evolution and function revealed by the Mus caroli and Mus pahari genomes" DOI: 10.1101/gr.234096.117
 
+Files used for plotting:
+
+final.set1.k31.correctedcount.txt : containes centromere 31-mers, readcount normalized count, and GC corrected counts.
+
+Pi_Estimation_metadata : contains Centromere Diversity Index values for samples
+
 The order of scripts is as follows:
 
 sanger_bam_library_identifiers.sh: Extract sanger bams sequencing library information
