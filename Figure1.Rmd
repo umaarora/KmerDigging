@@ -1,0 +1,79 @@
+---
+title: "KmerVariance_Heatmap"
+author: "Uma Arora"
+date: "3/16/2019"
+output: html_document
+---
+
+This code is to generate Supplementary Figure 4 and Figure 1. This figure is a heatmap of the readcount normalized frequency of 1000 k-mers that have the highest variance across the samples. 
+
+
+Load required libraries
+```{r setup, include=FALSE}
+library(pheatmap)
+library('viridis')
+#setwd('~/Downloads/Figures/Figure1/')
+```
+
+k-mer variance was calculated for all samples and the 1000 k-mers with the highest variance across samples was saved in a file named "top_1000_fixed_sorted.txt". This file was used to make a heatmap to represent trends in most variant k-mers across all samples.
+
+Read in top 1000 variant k-mers
+```{r data}
+#setwd('~/Box Sync/Dumont_Lab/k-merDigging/kmer_variance/data/')
+k15mers <- read.table(file = 'top_1000_fixed_sorted.txt', header = TRUE, sep = '\t')
+
+k15mersheatmap <- as.matrix(k15mers[,4:62])
+k15mersheatmap[is.na(k15mersheatmap)] <- 0
+```
+
+Heatmap with log transformed values
+```{r k15mers log transformed}
+k15merslogtrans <- log10(k15mers[,4:62])
+
+#Ordering the columns by phylogenetic similarity
+k15merslogtransordered <- k15merslogtrans[,48:50]
+k15merslogtransordered <- cbind(k15merslogtransordered,k15merslogtrans[,12:14])
+k15merslogtransordered <- cbind(k15merslogtransordered,k15merslogtrans[,54:56])
+k15merslogtransordered <- cbind(k15merslogtransordered,k15merslogtrans[,53])
+k15merslogtransordered <- cbind(k15merslogtransordered,k15merslogtrans[,39:47])
+k15merslogtransordered <- cbind(k15merslogtransordered,k15merslogtrans[,51:52])
+k15merslogtransordered <- cbind(k15merslogtransordered,k15merslogtrans[,15:19])
+k15merslogtransordered <- cbind(k15merslogtransordered,k15merslogtrans[,22:37])
+k15merslogtransordered <- cbind(k15merslogtransordered,k15merslogtrans[,59])
+k15merslogtransordered <- cbind(k15merslogtransordered,k15merslogtrans[,38])
+k15merslogtransordered <- cbind(k15merslogtransordered,k15merslogtrans[,57:58])
+k15merslogtransordered <- cbind(k15merslogtransordered,k15merslogtrans[,1:11])
+k15merslogtransordered <- cbind(k15merslogtransordered,k15merslogtrans[,20:21])
+k15merslogtransordered <- k15merslogtransordered[,-32]
+k15merslogtransordered <- k15merslogtransordered[,-32]
+k15merslogtransordered <- k15merslogtransordered[,-32]
+k15merslogtransordered <- k15merslogtransordered[,-35]
+
+colnames(k15merslogtransordered) <- c("Mus pahari (39)","Mus pahari (40)","Mus pahari (41)", "Mus caroli (28)", "Mus caroli (29)", "Mus caroli (30)","Wild Mus spretus (Spain 36)", "Wild Mus spretus (Spain 39)", "Wild Mus spretus (Spain 41)", "SPRET/EiJ (LB3888092)", "Wild M.m.musculus (Afghanistan 396)", "Wild M.m.musculus (Afghanistan 416)","Wild M.m.musculus (Afghanistan 424)","Wild M.m.musculus (Kazhakstan 1)","Wild M.m.musculus (Kazhakstan 16)","Wild M.m.musculus (Kazhakstan 19)", "Wild M.m.musculus (Czech 13)","Wild M.m.musculus (Czech 16)","Wild M.m.musculus (Czech 59)","PWK/PhJ (LB3888058)","PWK/PhJ (LB4505686)","Wild M.m.castaneus (India 12)","Wild M.m.castaneus (India 14)","Wild M.m.castaneus (India 15)","CAST/EiJ (LB3888061)","CAST/EiJ (LB4505650)","Wild M.m.domesticus (France 14)","Wild M.m.domesticus (France 15B)","Wild M.m.domesticus (France 18B)","Wild M.m.domesticus (Iran 15)","Wild M.m.domesticus (Iran 23)",        "Wild M.m.domesticus (Iran 11)","Wild M.m.domesticus (Germany 1)","Wild M.m.domesticus (Germany 3.92)","Wild M.m.domesticus (Germany 121B)", "Wild M.m.domesticus (Heligoland 6)","Wild M.m.domesticus (Heligoland 8)","Wild M.m.domesticus (Heligoland 13)","ZALENDE/EiJ","LEWES/EiJ","WSB/EiJ (LB3888060)","WSB/EiJ (LB4505662)","129S1/SvImJ (LB4505687)","129S5SvEvBrd (NOPCR)","129S5SvEvBrd (300DSS)","129S5SvEvBrd (500DSS)","A/J (LB4505627)", "A/J (LB5442420)","A/J (LB7469040)","C57BL/6NJ (LB3888056)", "C57BL/6NJ (LB4505614)","C3H/HeJ (LB3888055)","C3H/HeJ (LB4505626)","DBA/2J (LB3888057)","DBA/2J (LB4505698)" )
+
+
+```
+
+Log transformed heatmap
+```{r heatmap}
+setwd('/Users/arorau/Box Sync/Dumont_Lab/k-merDigging/kmer_variance/plots/')
+
+k15merslogtransordered[is.na(k15merslogtransordered)] <- 0
+
+svg(filename = 'Figure1.svg', 
+      width = 8, 
+      height = 6)
+pheatmap(k15merslogtransordered, 
+         cluster_cols = FALSE,
+         cluster_rows = TRUE, 
+         color = viridis(10),
+         legend = TRUE,
+         #clustering_distance_rows = "correlation",
+         show_rownames = FALSE,
+         annotation_names_col = TRUE, 
+         fontsize_col = 10, 
+         height = 9,
+         width = 9)
+dev.off()
+```
+
