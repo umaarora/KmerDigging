@@ -1,0 +1,61 @@
+---
+title: "PrincipalComponentAnalysis"
+author: "Uma Arora"
+date: "3/16/2020"
+output: html_document
+---
+
+This script makes the principal component analysis plots from k31 GC-corrected counts. 
+
+```{r setup, include=FALSE}
+library(ggplot2)
+library(ggrepel)
+#setwd('/Downloads/Figures/Figure4')
+```
+
+Minor satellite k-mer frequency PCA
+
+```{r}
+setwd("~/Desktop/Dumont_Lab/k-merDigging/manuscript/Supplementary/SupFigure5")
+pcadf <- read.table(file = 'PCAdf.GCcorr.minor.k31.txt')
+
+svg(filename = 'GCcorr_k31_minor__NAas0_PCA.svg', 
+    width = 9, 
+    height = 9)
+
+ggplot(pcadf) +
+  geom_point(aes(PC1,PC2, color = SAMPLE, shape = STRAIN), size = 3) +
+  scale_color_manual(values = c("plum","plum","plum","plum","plum","plum","yellowgreen","plum","plum","plum","green4","purple2","purple3","purple1","purple","red2","red1","red","plum","tomato","plum","plum")) +
+  theme(legend.position="bottom") +
+  #geom_text(aes(PC1, PC2, label= SAMPLE)) +
+  geom_text_repel(aes(PC1, PC2, label= SAMPLE)) 
+
+dev.off()
+
+
+```
+
+
+Minor satellite k-mer frequency PCA
+
+```{r}
+setwd("~/Desktop/Dumont_Lab/k-merDigging/manuscript/Supplementary/SupFigure5")
+pcadf <- read.table(file = 'PCAdf.GCcorr.major.k31.txt')
+
+svg(filename = 'GCcorr_k31_major_NAas0_PCA.svg', 
+    width = 9, 
+    height = 7)
+
+ggplot(pcadf) +
+  geom_point(aes(PC1,PC2, color = SAMPLE, shape = STRAIN), size = 3, show.legend = FALSE) +
+  scale_color_manual(values = c("plum","plum","plum","plum","plum","plum","green4","yellowgreen","plum","purple2","purple3","purple1","purple","plum","plum","plum","red2","red1","red","tomato","plum","plum")) +
+  #geom_text(aes(PC1, PC2, label= SAMPLE)) +
+  geom_text_repel(aes(PC1, PC2, label= SAMPLE))
+
+dev.off()
+
+```
+
+
+
+
