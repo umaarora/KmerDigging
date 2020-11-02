@@ -1,0 +1,108 @@
+---
+title: "Figure4"
+author: "Uma Arora"
+date: "11/2/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+
+Read in copy number dataframe and process for plotting
+```{r cars}
+k31 <- read.table(file = 'final.set1.k31.correctedcount.txt', header = TRUE)
+#remove no PCR libraries
+k31 <- k31[k31$LIBRARY != 'P2 NO PCR', ]
+k31 <- k31[k31$LIBRARY != 'SLX500HC', ]
+k31 <- k31[k31$LIBRARY != 'NO PCR', ]
+#only Mus musculus animals
+k31 <- k31[k31$TAXONOMY == "Mus musculus",]
+
+
+minorcopy <- k31[k31$SAT == 'MINOR',]
+minorcopy %>% 
+  group_by(STRAIN) %>% 
+  summarise(median=median(CORRECTEDCOUNT)) -> minorcopy
+
+
+majorcopy <- k31[k31$SAT == 'MAJOR',]
+majorcopy %>% 
+  group_by(STRAIN) %>% 
+  summarise(median=median(CORRECTEDCOUNT)) -> majorcopy
+
+```
+
+Read in Pi data and process for plotting
+```{r}
+Pi <- read.csv(file = 'Pi_Estimation_metadata.csv')
+
+Pi <- Pi[,-c(6:10)]
+Pi <- na.omit(Pi)
+colnames(Pi) <- c("STRAIN","MINOR","MAJOR","PERCENT MAPPED MAJOR","PERCENT MAPPED MINOR")
+Pi_minor <- merge(Pi,minorcopy, by = "STRAIN")
+Pi_minor$POPULATION <- c("Inbred")
+Pi_minor[11:17,7] <- c("Wild")
+
+Pi_major <- merge(Pi,majorcopy, by = "STRAIN")
+Pi_major$POPULATION <- c("Inbred")
+Pi_major[11:17,7] <- c("Wild")
+
+linmod_minor <- lm(Pi_minor$median ~ Pi_minor$MINOR)
+cor.test(Pi_minor$MINOR, Pi_minor$median, method=c("spearman"))
+
+linmod_major <- lm(Pi_major$median ~ Pi_major$MAJOR)
+cor.test(Pi_major$MINOR, Pi_major$median, method=c("spearman"))
+
+```
+
+Minor satellite plot
+```{r pressure, echo=FALSE}
+svg(filename = 'Musmusculus_k31GCcopy_Pi_minor.svg', 
+    width = 7, 
+    height = 7)
+
+ggplot(Pi_minor,aes(x=MINOR, y=median, color = STRAIN, shape = POPULATION)) +
+  geom_point() +
+  scale_color_manual(values = c("plum","plum","plum","plum","yellowgreen","plum","plum","plum","plum","tomato","green4","purple2","purple1","purple","red2","red1","red","plum","plum")) +
+  theme_bw() + 
+  theme_light() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size=10),axis.title = element_text(size=20),axis.text.y = element_text(size=15),plot.title =element_text(size=20,face="bold") ) +
+  theme(legend.position = "none") +
+  geom_text_repel(aes(MINOR, median, label= STRAIN))  +
+  ggtitle("Minor satellite") +
+  xlab("Sequence diversity (Pi)") +
+  ylab("Copy number (Log10)") +
+  labs(fill="Strain") 
+
+
+dev.off()
+```
+
+
+Major satellite plot
+```{r pressure, echo=FALSE}
+svg(filename = 'Musmusculus_k31GCcopy_Pi_major.svg', 
+    width = 7, 
+    height = 7)
+
+ggplot(Pi_major,aes(x=MAJOR, y=median, color = STRAIN, shape = POPULATION)) + 
+  geom_point()+
+  scale_color_manual(values = c("plum","plum","plum","plum","yellowgreen","plum","plum","plum","plum","tomato","green4","purple2","purple1","purple","red2","red1","red","plum","plum")) +
+  theme_bw() + 
+  theme_light() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size=10),axis.title = element_text(size=20),axis.text.y = element_text(size=15),plot.title =element_text(size=20,face="bold") ) +
+  theme(legend.position = "none") +
+  geom_text_repel(aes(MAJOR, median, label= STRAIN))  +
+  ggtitle("Major satellite") +
+  xlab("Sequence diversity (Pi)") +
+  ylab("Copy number (Log10)") +
+  labs(fill="Strain") 
+
+dev.off()
+```
+
+
