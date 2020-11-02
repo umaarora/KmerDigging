@@ -1,0 +1,97 @@
+---
+title: "SupFigure3"
+author: "Uma Arora"
+date: "10/5/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(ggplot2)
+library(dplyr)
+```
+
+Dataframe
+
+```{r cars}
+setwd('/Users/arorau/Desktop/Dumont_Lab/k-merDigging/centromere_kmers/copynumber/k31_GCcorrection/data/')
+k31 <- read.table(file = 'final.set1.k31.correctedcount.txt', header = TRUE)
+k31 <- k31[k31$LIBRARY != 'P2 NO PCR', ]
+k31 <- k31[k31$LIBRARY != 'SLX500HC', ]
+k31 <- k31[k31$LIBRARY != 'NO PCR', ]
+k31Musmusculus <- k31[k31$TAXONOMY == 'Mus musculus',]
+k31Musmusculusconsensus <- k31Musmusculus[k31Musmusculus$CON.SCR == 'CONSENSUS',]
+k31MusmusculusconsensusMINOR <- k31Musmusculusconsensus[k31Musmusculusconsensus$SAT=='MINOR',]
+k31MusmusculusconsensusMAJOR <- k31Musmusculusconsensus[k31Musmusculusconsensus$SAT=='MAJOR',]
+
+k31Musmusculusconsensus$STRAIN = factor(k31Musmusculusconsensus$STRAIN,levels(k31Musmusculusconsensus$STRAIN)[c(26,10,3,8,6,1,12,4,25,2,5,9,11,14,16,17,18,19,20,21,22,23,15,24)])
+
+```
+
+```{r}
+k31Musmusculusconsensus %>%
+     group_by(SAT, STRAIN, LIBRARY, POPULATION) %>%
+     summarise(VARIANCE = var(CORRECTEDCOUNT),RANGE = (max(CORRECTEDCOUNT) - min(CORRECTEDCOUNT))) -> satrange
+
+k31Musmusculusconsensus %>%
+     group_by(SAT, STRAIN, POPULATION) %>%
+     summarise(VARIANCE = var(CORRECTEDCOUNT)) -> satvar
+
+```
+
+
+```{r}
+ggplot(satvar, aes(x = SAT, y = VARIANCE, color = POPULATION)) +
+  geom_dotplot(binaxis = "y", stackdir = "center")  +
+  ylab("Variance[Log10(GC-corrected k-mer frequency)]") +
+  xlab("Satellite") 
+```
+
+```{r}
+ggplot(satrange, aes(x = SAT, y = RANGE, color = POPULATION))+
+  geom_violin() +
+  ylab("Range Log10(GC-corrected k-mer frequency)") +
+  xlab("Centromere satellite") 
+```
+Inbred strain sequencing libraries similar to wild caught individuals
+Use castaneus as an example
+```{r}
+CAST <- k31Musmusculusconsensus[k31Musmusculusconsensus$STRAIN == 'CAST/EiJ',]
+wildcast <- k31Musmusculusconsensus[k31Musmusculusconsensus$STRAIN == 'Wild M.m.castaneus India',]
+allcast <- rbind(CAST,wildcast)
+
+ggplot(allcast, aes(x=LIBRARY, y = CORRECTEDCOUNT))+
+  geom_boxplot()+
+  facet_grid(cols = vars(allcast$SAT), scales = "free_x")
+  
+
+```
+
+inbred strain libraries vs wild caught individuals 
+remove ZALENDE, FVB, MOLF, and LEWES - because they only have one library...
+
+```{r}
+k31MusmusculusconsensusMINOR <- k31MusmusculusconsensusMINOR[k31MusmusculusconsensusMINOR$STRAIN != 'ZALENDE/EiJ',]
+k31MusmusculusconsensusMINOR <- k31MusmusculusconsensusMINOR[k31MusmusculusconsensusMINOR$STRAIN != 'FVB/NJ',]
+k31MusmusculusconsensusMINOR <- k31MusmusculusconsensusMINOR[k31MusmusculusconsensusMINOR$STRAIN != 'MOLF/EiJ',]
+k31MusmusculusconsensusMINOR <- k31MusmusculusconsensusMINOR[k31MusmusculusconsensusMINOR$STRAIN != 'LEWES/EiJ',]
+
+svg(filename = 'SupFigure3.svg', 
+    width = 16, 
+    height = 9)
+
+ggplot(k31MusmusculusconsensusMINOR,aes(x = LIBRARY, y = CORRECTEDCOUNT, color = STRAIN))+
+  geom_boxplot()+
+  theme_bw() + 
+  theme_light() +
+  facet_grid(cols = vars(k31MusmusculusconsensusMINOR$STRAIN), scales = "free_x") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, size=15),
+        axis.title = element_text(size=20),
+        axis.text.y = element_text(size=15),
+        legend.position = "none")+
+  xlab("Libraries/Individuals") +
+  ylab("Log10(GC-corrected k-mer frequency)") +
+  labs(fill="Strain") 
+
+dev.off()
+
+```
