@@ -8,9 +8,9 @@ This manuscript utilizes publicly available sequencing data from 3 different pro
 
 Files used for plotting:
 
-final.set1.k31.correctedcount.txt : containes centromere 31-mers, readcount normalized count, and GC corrected counts.
+final.set1.k31.correctedcount.txt : contains centromere 31-mers, readcount normalized count, and GC corrected counts.
 
-Pi_Estimation_metadata : contains Centromere Diversity Index values for samples
+Pi_Estimation_metadata : contains Centromere Diversity Index (CDI) values for samples
 
 The order of scripts is as follows:
 
@@ -18,7 +18,7 @@ sanger_bam_library_identifiers.sh: Extract sanger bams sequencing library inform
 
 sanger_split_libraries.sh: Split sanger bams by sequencing libraries
 
-caroli_pahari_process_fastq.sh: Download M. caroli and M. pahari fastq reads, map them to Mus musculus reference (mm10), remove optical duplicates, and convert back to fastq format.
+caroli_pahari_process_fastq.sh: Download M. caroli and M. pahari fastq reads, map them to Mus musculus reference (mm10), remove optical duplicates, and convert bam files back to fastq format before proceeding with k-mer analysis.
 
 wild_fastq.sh: Download wild mouse bam files into fastq format
 
@@ -26,7 +26,7 @@ kmer_composition.py: Python script to read in a fastq file and output a k-mer ta
 
 k31txt.to.fastq.py: Convert k-mer table into fastq format for mapping to centromere consensus
 
-centromere_kmers.sh: Use bwa to map k-mers to centromere consensus (at the top of the script is the centromere consensus fa file). Produces output mapped k-mer sam file.
+centromere_kmers.sh: Use bwa to map k-mers to centromere consensus (at the top of the script is the centromere consensus fasta file). Produces output mapped k-mer sam file.
 
 process_mapped_sam.sh: process mapped k-mer sam file to make a dataframe
 
@@ -34,7 +34,7 @@ GC_calculation.R: calculate GC% of each k-mer in the table
 
 GCcontent.py: Subsets k-mers for those that occur only once in the reference genome and calculates their GC%
 
-GCLoess.R: Loess regression on subsetted k-mers that only occur once in the genome. Loess regression based on GC content.
+GCLoess.R: Loess regression on subsetted k-mers that only occur once in the mouse reference genome (mm10). Loess regression based on GC content.
 
 GCcorrection.R: Correct each sample's raw k-mer counts by GC Loess regression predicted count 
 
