@@ -1,5 +1,5 @@
 # Population and subspecies diversity at mouse centromeres
-[Arora et. al (2020)](https://doi.org/10.1186/s12864-021-07591-5)
+[Arora et. al (2021)](https://doi.org/10.1186/s12864-021-07591-5)
 
 Using publicly available whole genome sequencing data from diverse mouse strains and a customized k-mer based analysis, we comprehensively characterized multiple dimensions of mouse centromere variation.
 ![mouse centromere variation](images/centromere-variation.png)
@@ -42,7 +42,7 @@ Note: The sanger mouse genomes project genomes sometimes had multiple sequencing
 
 **GCcorrection.R:** Correct each sample's raw k-mer counts by GC Loess regression predicted count
 
-### using k-mers mapped to centromere consensus sequence to quantify polymorphisms
+### Using k-mers mapped to centromere consensus sequence to quantify polymorphisms
 **Consensus_script.R:** Calculate nucleotide frequency at each position on minor and major consensus sequences using k-mer frequency and it's mapping position.
 
 ### Mapping reads to centromere consensus sequence to calculate the centromere diversity index
