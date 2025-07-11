@@ -16,6 +16,7 @@ This repository contains the code and figures in the manuscript. This analysis w
 #### Sanger mouse genomes project
 Note: The sanger mouse genomes project genomes sometimes had multiple sequencing libraries per strain. To ensure sequencing run was not confounding results, we processed and analyzed them separately, and once we confirmed there were no large differences, we went ahead and combined them.
 **sanger_bam_library_identifiers.sh:** Extract sanger bams sequencing library information
+
 **sanger_split_libraries.sh:** Split sanger bams by sequencing libraries
 #### Wild mouse genomes project
 **wild_fastq.sh:** Download wild mouse bam files into fastq format
@@ -27,13 +28,18 @@ Note: The sanger mouse genomes project genomes sometimes had multiple sequencing
 
 ### Mapping k-mers to centromere consensus sequence
 **k31txt.to.fastq.py:** Convert k-mer table into fastq format for mapping to centromere consensus
+
 **centromere_kmers.sh:** Use bwa to map k-mers to centromere consensus (at the top of the script is the centromere consensus fasta file). Produces output mapped k-mer sam file.
+
 **process_mapped_sam.sh:** process mapped k-mer sam file to make a dataframe
 
 ### GC correction for copy number estimation
 **GCcontent.py:** Subsets k-mers for those that occur only once in the reference genome and calculates their GC%
+
 **GC_calculation.R:** calculate GC% of each k-mer in the table
+
 **GCLoess.R:** Loess regression on subsetted k-mers that only occur once in the mouse reference genome (mm10). Loess regression based on GC content.
+
 **GCcorrection.R:** Correct each sample's raw k-mer counts by GC Loess regression predicted count
 
 ### using k-mers mapped to centromere consensus sequence to quantify polymorphisms
@@ -41,8 +47,10 @@ Note: The sanger mouse genomes project genomes sometimes had multiple sequencing
 
 ### Mapping reads to centromere consensus sequence to calculate the centromere diversity index
 **CentromereMapping.sh:** Maps sequencing reads to centromere consensus sequence
+
 **CentromereMapped_LocationSplit.py:** Split mapped reads by location on consensus sequence they map to, and output a csv file compiling reads that map to each position on consensus sequence
 
 ### Files used for plotting
 **final.set1.k31.correctedcount.txt:** contains centromere 31-mers, readcount normalized count, and GC corrected counts.
+
 **Pi_Estimation_metadata:** contains Centromere Diversity Index (CDI) values for samples
