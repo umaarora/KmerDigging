@@ -2,12 +2,12 @@
 [Arora et. al (2020)](https://doi.org/10.1186/s12864-021-07591-5)
 
 Using publicly available whole genome sequencing data from diverse mouse strains and a customized k-mer based analysis, we comprehensively characterized multiple dimensions of mouse centromere variation.
-(images/centromere-variation.png)
+![mouse centromere variation](images/centromere-variation.png)
 
 This manuscript utilizes publicly available sequencing data from 3 different projects:
 1) Sanger mouse genomes project: ftp://ftp-mouse.sanger.ac.uk/current_bams/
 2) Wild mouse genomes project: http://wwwuser.gwdg.de/~evolbio/evolgen/wildmouse/
-3) Mus caroli and Mus pahari genome assemblies: "Repeat associated mechanisms of genome evolution and function revealed by the Mus caroli and Mus pahari genomes" DOI: 10.1101/gr.234096.117
+3) Mus caroli and Mus pahari genome assemblies: [Repeat associated mechanisms of genome evolution and function revealed by the Mus caroli and Mus pahari genomes](http://www.genome.org/cgi/doi/10.1101/gr.234096.117)
 
 This repository contains the code and figures in the manuscript. This analysis was performed on a high performance computing cluster, and utilizes scripts written in bash, R, and Python.
 ## Scripts used in the analysis:
